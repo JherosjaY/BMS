@@ -36,19 +36,28 @@ export function initializeFCM() {
           })
         });
         console.log('✅ Firebase Admin SDK initialized (from environment variables)');
+        isInitialized = true;
       } else {
-        // Fallback to JSON file (for local development)
-        const serviceAccount = require('./firebase-service-account.json');
-        admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount)
-        });
-        console.log('✅ Firebase Admin SDK initialized (from JSON file)');
+        // Try JSON file (for local development)
+        try {
+          const serviceAccount = require('./firebase-service-account.json');
+          admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount)
+          });
+          console.log('✅ Firebase Admin SDK initialized (from JSON file)');
+          isInitialized = true;
+        } catch (fileError) {
+          console.warn('⚠️ Firebase Admin SDK not initialized - FCM notifications will be disabled');
+          console.warn('⚠️ To enable FCM, set FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, and FIREBASE_CLIENT_EMAIL environment variables');
+          // Don't throw error - allow app to run without FCM
+          isInitialized = false;
+        }
       }
-      
-      isInitialized = true;
     } catch (error) {
       console.error('❌ Failed to initialize Firebase Admin SDK:', error);
-      throw error;
+      console.warn('⚠️ FCM notifications will be disabled');
+      // Don't throw error - allow app to run without FCM
+      isInitialized = false;
     }
   }
 }
