@@ -82,56 +82,71 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
   .post(
     "/register",
     async ({ body, set }) => {
-      const { username, password, firstName, lastName, role } = body;
+      try {
+        const { username, password, firstName, lastName, role } = body;
 
-      // Check if username exists
-      const existingUser = await db.query.users.findFirst({
-        where: eq(users.username, username),
-      });
+        // Validate input
+        if (!username || !password || !firstName || !lastName) {
+          set.status = 400;
+          return { success: false, message: "Missing required fields" };
+        }
 
-      if (existingUser) {
-        set.status = 400;
-        return { success: false, message: "Username already exists" };
-      }
+        // Check if username exists
+        const existingUser = await db.query.users.findFirst({
+          where: eq(users.username, username),
+        });
 
-      // Hash password with bcrypt
-      const hashedPassword = await bcrypt.hash(password, 10);
-      
-      // Use provided role or default to "User" for public registration
-      const userRole = role || "User";
-      
-      const [newUser] = await db
-        .insert(users)
-        .values({
-          username,
-          password: hashedPassword,
-          firstName,
-          lastName,
-          role: userRole,
-          isActive: true,
-          profileCompleted: false,
-          mustChangePassword: false,
-        })
-        .returning();
+        if (existingUser) {
+          set.status = 400;
+          return { success: false, message: "Username already exists" };
+        }
 
-      // Generate token
-      const token = Buffer.from(`${newUser.id}:${newUser.username}:${Date.now()}`).toString('base64');
+        // Hash password with bcrypt
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // Use provided role or default to "User" for public registration
+        const userRole = role || "User";
+        
+        const [newUser] = await db
+          .insert(users)
+          .values({
+            username: username.toLowerCase(),
+            password: hashedPassword,
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            role: userRole.charAt(0).toUpperCase() + userRole.slice(1).toLowerCase(),
+            isActive: true,
+            profileCompleted: false,
+            mustChangePassword: false,
+          })
+          .returning();
 
-      return {
-        success: true,
-        message: "Registration successful",
-        data: {
-          user: {
-            id: newUser.id,
-            username: newUser.username,
-            firstName: newUser.firstName,
-            lastName: newUser.lastName,
-            role: newUser.role,
-            profileCompleted: newUser.profileCompleted,
+        // Generate token
+        const token = Buffer.from(`${newUser.id}:${newUser.username}:${Date.now()}`).toString('base64');
+
+        return {
+          success: true,
+          message: "Registration successful",
+          data: {
+            user: {
+              id: newUser.id,
+              username: newUser.username,
+              firstName: newUser.firstName,
+              lastName: newUser.lastName,
+              role: newUser.role,
+              profileCompleted: newUser.profileCompleted,
+            },
+            token: token,
           },
-          token: token,
-        },
-      };
+        };
+      } catch (error: any) {
+        set.status = 500;
+        return {
+          success: false,
+          message: "Registration failed",
+          error: error.message,
+        };
+      }
     },
     {
       body: t.Object({
