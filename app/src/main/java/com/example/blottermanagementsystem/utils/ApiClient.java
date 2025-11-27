@@ -29,7 +29,7 @@ public class ApiClient {
     // For Android Emulator: http://10.0.2.2:3000/
     // For Physical Device: http://YOUR_COMPUTER_IP:3000/ (e.g., http://192.168.1.100:3000/)
     // For Production: https://your-domain.com/
-    private static final String BASE_URL = "http://10.0.2.2:3000/";
+    private static final String BASE_URL = "https://bms-1op6.onrender.com/";
     
     private static Retrofit retrofit;
     private static ApiService apiService;
