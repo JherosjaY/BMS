@@ -3,10 +3,22 @@ import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { bearer } from "@elysiajs/bearer";
 import { jwt } from "@elysiajs/jwt";
-import FCM from "../backend-fcm-helper.js";
 
-// Initialize Firebase Cloud Messaging
-FCM.initializeFCM();
+// Firebase Cloud Messaging initialization
+// Note: FCM will be disabled if environment variables are not set
+const initializeFCM = () => {
+  const hasFirebaseConfig = 
+    process.env.FIREBASE_PROJECT_ID && 
+    process.env.FIREBASE_PRIVATE_KEY && 
+    process.env.FIREBASE_CLIENT_EMAIL;
+  
+  if (!hasFirebaseConfig) {
+    console.warn("⚠️ Firebase Admin SDK not initialized - FCM notifications will be disabled");
+    console.warn("⚠️ To enable FCM, set FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, and FIREBASE_CLIENT_EMAIL environment variables");
+  }
+};
+
+initializeFCM();
 
 // Import routes
 import { authRoutes } from "./routes/auth";
