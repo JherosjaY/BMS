@@ -1,6 +1,8 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
+import { bearer } from "@elysiajs/bearer";
+import { jwt } from "@elysiajs/jwt";
 import FCM from "../backend-fcm-helper.js";
 
 // Initialize Firebase Cloud Messaging
@@ -28,6 +30,13 @@ export const app = new Elysia()
       origin: process.env.ALLOWED_ORIGINS?.split(",") || "*",
     })
   )
+  .use(bearer())
+  .use(
+    jwt({
+      name: "jwt",
+      secret: process.env.JWT_SECRET || "your-secret-key-change-in-production",
+    })
+  )
   .use(
     swagger({
       path: "/swagger",
@@ -35,7 +44,7 @@ export const app = new Elysia()
         info: {
           title: "Blotter Management System API",
           version: "1.0.0",
-          description: "API for Blotter Management System",
+          description: "API for Blotter Management System - Production Ready",
         },
       },
     })
