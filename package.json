@@ -17,11 +17,11 @@
     "deploy": "bun run build && bunx wrangler deploy"
   },
   "dependencies": {
-    "elysia": "^1.0.0",
-    "@elysiajs/cors": "^1.0.0",
-    "@elysiajs/swagger": "^1.0.0",
-    "@elysiajs/bearer": "^1.0.0",
-    "@elysiajs/jwt": "^1.0.0",
+    "elysia": "0.8.21",
+    "@elysiajs/cors": "0.8.1",
+    "@elysiajs/swagger": "0.8.3",
+    "@elysiajs/bearer": "0.8.1",
+    "@elysiajs/jwt": "0.8.1",
     "drizzle-orm": "^0.30.0",
     "postgres": "^3.4.0",
     "@types/pg": "^8.11.0",
