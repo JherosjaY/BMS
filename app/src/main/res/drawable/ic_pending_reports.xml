@@ -1,0 +1,20 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    <!-- Outer circle background -->
+    <path
+        android:fillColor="#2563EB"
+        android:pathData="M 60,5 C 89.8,5 115,30.2 115,60 C 115,89.8 89.8,115 60,115 C 30.2,115 5,89.8 5,60 C 5,30.2 30.2,5 60,5 Z" />
+    
+    <!-- Inner white circle -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M 60,15 C 84.3,15 105,35.7 105,60 C 105,84.3 84.3,105 60,105 C 35.7,105 15,84.3 15,60 C 15,35.7 35.7,15 60,15 Z" />
+    
+    <!-- Hourglass -->
+    <path
+        android:fillColor="#2563EB"
+        android:pathData="M 45,28 L 75,28 L 75,38 Q 75,42 71,44 L 49,44 Q 45,42 45,38 Z M 55,44 L 65,44 L 60,54 Z M 45,54 L 75,54 Q 75,58 71,60 L 49,60 Q 45,58 45,54 Z" />
+</vector>

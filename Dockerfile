@@ -1,22 +1,23 @@
-FROM oven/bun:1 as base
+FROM oven/bun:1-alpine
+
 WORKDIR /app
 
+# Copy all files from root
+COPY package.json .
+COPY package-lock.json* .
+COPY tsconfig.json* .
+COPY drizzle.config.ts* .
+COPY biome.json* .
+
+# Copy source code and database
+COPY src ./src
+COPY database ./database
+
 # Install dependencies
-FROM base AS install
-RUN mkdir -p /temp/dev
-COPY package.json /temp/dev/
-RUN cd /temp/dev && bun install
+RUN bun install
 
-# Copy node_modules from temp directory
-FROM base AS prerelease
-COPY --from=install /temp/dev/node_modules node_modules
-COPY . .
+# Expose port
+EXPOSE 3000
 
-# Run the app
-FROM base AS release
-COPY --from=install /temp/dev/node_modules node_modules
-COPY --from=prerelease /app .
-
-USER bun
-EXPOSE 3000/tcp
-ENTRYPOINT [ "bun", "run", "src/index.ts" ]
+# Start the app
+CMD ["bun", "run", "src/index.ts"]

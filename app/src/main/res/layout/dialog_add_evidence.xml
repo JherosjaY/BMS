@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="12dp"
+    app:cardBackgroundColor="@color/dialog_background"
+    app:strokeColor="@color/electric_blue"
+    app:strokeWidth="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/dialog_rounded_corners"
+        android:padding="28dp">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔍 Add Evidence"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp" />
+
+    <!-- File Picker Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        android:spacing="24dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPickPhoto"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="Pick Photo"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            app:backgroundTint="@color/electric_blue"
+            app:cornerRadius="14dp"
+            app:icon="@drawable/ic_add_photo"
+            app:iconTint="@color/white"
+            app:iconSize="28dp"
+            app:iconPadding="0dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPickVideo"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="12dp"
+            android:contentDescription="Pick Video"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            app:backgroundTint="@color/electric_blue"
+            app:cornerRadius="14dp"
+            app:icon="@drawable/ic_video_placeholder"
+            app:iconTint="@color/white"
+            app:iconSize="28dp"
+            app:iconPadding="0dp" />
+    </LinearLayout>
+
+    <!-- Selected Files Display -->
+    <TextView
+        android:id="@+id/tvSelectedFiles"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No files selected"
+        android:textColor="@color/text_secondary"
+        android:textSize="12sp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center" />
+
+    <!-- File Preview RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvFilePreview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:visibility="gone"
+        android:nestedScrollingEnabled="false" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:boxStrokeColor="@color/text_field_stroke_color"
+        app:boxStrokeWidth="1dp"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etEvidenceTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Title *"
+            android:inputType="textCapWords"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        app:boxBackgroundColor="@android:color/transparent"
+        app:boxStrokeColor="@color/text_field_stroke_color"
+        app:boxStrokeWidth="1dp"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusTopStart="12dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etEvidenceDescription"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:hint="Description"
+            android:inputType="textCapWords|textMultiLine"
+            android:gravity="top"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary" />
+    </com.google.android.material.textfield.TextInputLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:spacing="8dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveEvidence"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="Save"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            app:backgroundTint="@color/electric_blue"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/ic_evidence"
+            app:iconGravity="textStart"
+            app:iconTint="@color/white" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSkipEvidence"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="⏭️ Skip"
+            android:textColor="@color/electric_blue"
+            android:textSize="16sp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            app:strokeColor="@color/electric_blue"
+            app:cornerRadius="12dp" />
+    </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

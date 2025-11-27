@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- When focused: electric blue -->
+    <item android:color="@color/electric_blue" android:state_focused="true" />
+    <!-- Default: gray -->
+    <item android:color="@color/text_secondary" />
+</selector>
