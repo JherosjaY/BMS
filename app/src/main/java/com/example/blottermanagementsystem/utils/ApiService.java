@@ -307,4 +307,41 @@ public interface ApiService {
      */
     @PUT("api/person-history/{personId}/risk-level")
     Call<Map<String, Object>> updatePersonRiskLevel(@Path("personId") String personId, @Body Map<String, Object> riskData);
+    
+    // ============ HEARINGS ============
+    
+    /**
+     * Schedule hearing
+     * POST /api/hearings/schedule
+     */
+    @POST("api/hearings/schedule")
+    Call<Map<String, Object>> scheduleHearing(@Body Map<String, Object> hearingData);
+    
+    /**
+     * Get hearings by date range
+     * POST /api/hearings/by-date-range
+     */
+    @POST("api/hearings/by-date-range")
+    Call<Map<String, Object>> getHearingsByDateRange(@Body Map<String, Object> dateRange);
+    
+    /**
+     * Get user hearings
+     * GET /api/hearings/user/{userId}
+     */
+    @GET("api/hearings/user/{userId}")
+    Call<Map<String, Object>> getUserHearings(@Path("userId") String userId);
+    
+    /**
+     * Add hearing minutes
+     * POST /api/hearings/minutes
+     */
+    @POST("api/hearings/minutes")
+    Call<Map<String, Object>> addHearingMinutes(@Body Map<String, Object> minuteData);
+    
+    /**
+     * Update hearing status
+     * PUT /api/hearings/{hearingId}/status
+     */
+    @PUT("api/hearings/{hearingId}/status")
+    Call<Map<String, Object>> updateHearingStatus(@Path("hearingId") String hearingId, @Body Map<String, Object> statusData);
 }

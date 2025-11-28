@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:navigationIcon="@drawable/ic_back_arrow"
+        app:navigationIconTint="@android:color/white"
+        app:title="Hearings Calendar"
+        app:titleTextColor="@android:color/white" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- CALENDAR HEADER -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardCalendar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- MONTH/YEAR NAVIGATION -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnPrevMonth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="◀ Prev"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                        <TextView
+                            android:id="@+id/tvMonthYear"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:text="January 2024"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnNextMonth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Next ▶"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- HEARINGS LIST -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvHearings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
+            <!-- EMPTY STATE -->
+            <LinearLayout
+                android:id="@+id/emptyState"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="32dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📅"
+                    android:textSize="48sp"
+                    android:layout_marginBottom="16dp" />
+
+                <TextView
+                    android:id="@+id/tvNoHearings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No hearings scheduled"
+                    android:textAlignment="center"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="24dp" />
+
+            </LinearLayout>
+
+            <!-- SCHEDULE BUTTON -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnScheduleHearing"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📅 Schedule New Hearing"
+                android:layout_marginTop="16dp" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
