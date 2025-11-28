@@ -3,6 +3,7 @@ import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { bearer } from "@elysiajs/bearer";
 import { jwt } from "@elysiajs/jwt";
+import { db } from "./db";
 
 // Firebase Cloud Messaging initialization
 // Note: FCM will be disabled if environment variables are not set
@@ -89,6 +90,26 @@ export const app = new Elysia()
     status: "healthy",
     timestamp: new Date().toISOString(),
   }))
+  // Test database connection
+  .get("/test-db", async () => {
+    try {
+      const users = await db.query.users.findMany();
+      return {
+        success: true,
+        database: "connected",
+        user_count: users.length,
+        message: "✅ Neon database is working perfectly!",
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        database: "disconnected",
+        error: error.message,
+        timestamp: new Date().toISOString(),
+      };
+    }
+  })
   // Mount routes
   .group("/api", (app) =>
     app
