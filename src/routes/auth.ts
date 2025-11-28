@@ -5,6 +5,40 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
 export const authRoutes = new Elysia({ prefix: "/auth" })
+  // Check if email exists
+  .post(
+    "/check-email",
+    async ({ body, set }) => {
+      try {
+        const { email } = body;
+        
+        if (!email) {
+          set.status = 400;
+          return { success: false, message: "Email is required" };
+        }
+        
+        const existingUser = await db.query.users.findFirst({
+          where: eq(users.email, email.toLowerCase()),
+        });
+        
+        return {
+          success: true,
+          exists: !!existingUser,
+          message: existingUser ? "Email already registered" : "Email available",
+        };
+      } catch (error: any) {
+        console.error("❌ Check Email Error:", error.message);
+        set.status = 500;
+        return { success: false, message: "Failed to check email" };
+      }
+    },
+    {
+      body: t.Object({
+        email: t.String(),
+      }),
+    }
+  )
+
   // Login
   .post(
     "/login",
@@ -97,8 +131,12 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         });
 
         if (existingUsername) {
-          set.status = 400;
-          return { success: false, message: "Username already exists" };
+          set.status = 409; // Conflict status
+          return { 
+            success: false, 
+            message: "Username already taken",
+            error: "DUPLICATE_USERNAME"
+          };
         }
 
         // Check if email exists
@@ -107,8 +145,12 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         });
 
         if (existingEmail) {
-          set.status = 400;
-          return { success: false, message: "Email already exists" };
+          set.status = 409; // Conflict status
+          return { 
+            success: false, 
+            message: "Email already registered",
+            error: "DUPLICATE_EMAIL"
+          };
         }
 
         // Hash password with bcrypt
@@ -182,17 +224,10 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
           return { success: false, message: "Missing required Google fields" };
         }
 
-        // Check if user exists by Google ID or email
+        // Check if user exists by Google ID
         let user = await db.query.users.findFirst({
           where: eq(users.googleId, googleId),
         });
-        
-        // If not found by googleId, try by email
-        if (!user) {
-          user = await db.query.users.findFirst({
-            where: eq(users.email, email.toLowerCase()),
-          });
-        }
 
         if (user) {
           // Existing Google user - update last login
@@ -225,6 +260,20 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
             },
           };
         } else {
+          // Check if email already exists (different Google account, same email)
+          const existingEmail = await db.query.users.findFirst({
+            where: eq(users.email, email.toLowerCase()),
+          });
+          
+          if (existingEmail) {
+            set.status = 409; // Conflict
+            return {
+              success: false,
+              message: "Email already registered with a different account",
+              error: "EMAIL_EXISTS_DIFFERENT_METHOD"
+            };
+          }
+
           // New Google user - create account
           const username = `${firstName.toLowerCase()}${Math.floor(Math.random() * 10000)}`;
 

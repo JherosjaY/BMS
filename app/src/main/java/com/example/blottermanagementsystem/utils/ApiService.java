@@ -22,6 +22,13 @@ public interface ApiService {
     // ============ AUTHENTICATION ============
     
     /**
+     * Check if email exists
+     * POST /api/auth/check-email
+     */
+    @POST("api/auth/check-email")
+    Call<Map<String, Object>> checkEmailExists(@Body Map<String, Object> emailData);
+    
+    /**
      * User Registration
      * POST /api/auth/register
      */
