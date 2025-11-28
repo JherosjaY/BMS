@@ -344,6 +344,63 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
     }
   )
   
+  // Update User Profile Picture (Save to Neon)
+  .post(
+    "/profile/picture/:userId",
+    async ({ params, body, set }) => {
+      try {
+        const userId = parseInt(params.userId);
+        const { profilePictureUrl } = body;
+
+        if (!profilePictureUrl) {
+          set.status = 400;
+          return { success: false, message: "Profile picture URL is required" };
+        }
+
+        // Update user profile picture in Neon database
+        const [updatedUser] = await db
+          .update(users)
+          .set({
+            profilePictureUrl: profilePictureUrl,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, userId))
+          .returning();
+
+        if (!updatedUser) {
+          set.status = 404;
+          return {
+            success: false,
+            message: "User not found",
+          };
+        }
+
+        console.log("✅ Profile picture saved to Neon:", updatedUser.id);
+
+        return {
+          success: true,
+          message: "Profile picture updated successfully",
+          data: {
+            profilePictureUrl: updatedUser.profilePictureUrl,
+          },
+        };
+      } catch (error: any) {
+        console.error("❌ Error updating profile picture:", error.message);
+        set.status = 500;
+        return {
+          success: false,
+          message: "Failed to update profile picture",
+          error: error.message,
+        };
+      }
+    },
+    {
+      body: t.Object({
+        profilePictureUrl: t.String(),
+      }),
+    }
+  )
+
   // Update User Profile (Profile Photo & Completion)
   .put(
     "/profile/:userId",

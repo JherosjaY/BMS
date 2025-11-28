@@ -49,6 +49,16 @@ public interface ApiService {
     @POST("api/auth/google")
     Call<Map<String, Object>> googleSignIn(@Body Map<String, Object> googleAuthData);
     
+    /**
+     * Update Profile Picture (Save to Neon)
+     * POST /api/auth/profile/picture/{userId}
+     */
+    @POST("api/auth/profile/picture/{userId}")
+    Call<Map<String, Object>> updateProfilePicture(
+        @Path("userId") int userId,
+        @Body Map<String, Object> pictureData
+    );
+    
     // ============ REPORTS ============
     
     /**

@@ -90,7 +90,10 @@ public class ProfileActivity extends BaseActivity {
                         currentUser.setProfilePhotoUri(selectedImageUri);
                         Executors.newSingleThreadExecutor().execute(() -> {
                             database.userDao().updateUser(currentUser);
-                            android.util.Log.d("ProfileActivity", "✅ Profile photo saved to database: " + selectedImageUri);
+                            android.util.Log.d("ProfileActivity", "✅ Profile photo saved to local database: " + selectedImageUri);
+                            
+                            // ✅ ALSO SAVE TO NEON DATABASE (for multi-device sync)
+                            saveProfilePictureToNeon(selectedImageUri);
                         });
                     } else {
                         android.util.Log.e("ProfileActivity", "❌ ERROR: Cannot save profile photo - currentUser is NULL!");
@@ -103,6 +106,9 @@ public class ProfileActivity extends BaseActivity {
                                 database.userDao().updateUser(user);
                                 currentUser = user;
                                 android.util.Log.d("ProfileActivity", "✅ Profile photo saved after loading user");
+                                
+                                // ✅ ALSO SAVE TO NEON DATABASE (for multi-device sync)
+                                saveProfilePictureToNeon(selectedImageUri);
                             } else {
                                 android.util.Log.e("ProfileActivity", "❌ Still cannot find user with ID: " + userId);
                             }
@@ -240,6 +246,33 @@ public class ProfileActivity extends BaseActivity {
         tvProfileEmoji.setVisibility(View.VISIBLE);
         ivProfilePicture.setVisibility(View.GONE);
         btnChangePhoto.setVisibility(View.GONE);
+    }
+    
+    private void saveProfilePictureToNeon(String imageUri) {
+        // Save profile picture to Neon database for multi-device sync
+        int userId = preferencesManager.getUserId();
+        
+        java.util.Map<String, Object> pictureData = new java.util.HashMap<>();
+        pictureData.put("profilePictureUrl", imageUri);
+        
+        com.example.blottermanagementsystem.utils.ApiClient.getApiService()
+            .updateProfilePicture(userId, pictureData)
+            .enqueue(new retrofit2.Callback<java.util.Map<String, Object>>() {
+                @Override
+                public void onResponse(retrofit2.Call<java.util.Map<String, Object>> call,
+                                     retrofit2.Response<java.util.Map<String, Object>> response) {
+                    if (response.isSuccessful()) {
+                        android.util.Log.d("ProfileActivity", "✅ Profile picture saved to Neon database");
+                    } else {
+                        android.util.Log.e("ProfileActivity", "❌ Failed to save to Neon: " + response.code());
+                    }
+                }
+                
+                @Override
+                public void onFailure(retrofit2.Call<java.util.Map<String, Object>> call, Throwable t) {
+                    android.util.Log.e("ProfileActivity", "❌ Network error saving to Neon: " + t.getMessage());
+                }
+            });
     }
     
     private void loadProfilePicture() {
