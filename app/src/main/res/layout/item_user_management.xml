@@ -93,13 +93,13 @@
         </LinearLayout>
 
         <!-- Action Icon -->
-        <ImageView
+        <TextView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_baseline_arrow_forward_24"
-            android:contentDescription="View options"
-            android:tint="@android:color/darker_gray" />
+            android:text="→"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:contentDescription="View options" />
 
     </LinearLayout>
 
