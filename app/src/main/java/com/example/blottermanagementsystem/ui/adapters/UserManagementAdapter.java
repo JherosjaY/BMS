@@ -70,12 +70,7 @@ public class UserManagementAdapter extends RecyclerView.Adapter<UserManagementAd
             tvRole.setText(user.getRole());
             
             // Set auth provider with emoji
-            String authProvider = user.getAuthProvider() != null ? user.getAuthProvider() : "email";
-            if ("google".equalsIgnoreCase(authProvider)) {
-                tvAuthProvider.setText("🔵 Google");
-            } else {
-                tvAuthProvider.setText("📧 Email");
-            }
+            tvAuthProvider.setText("📧 Email");
             
             // Set role icon based on role
             String role = user.getRole();

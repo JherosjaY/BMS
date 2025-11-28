@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.blottermanagementsystem.R;
 import com.example.blottermanagementsystem.data.database.BlotterDatabase;
 import com.example.blottermanagementsystem.data.entity.User;
+import com.example.blottermanagementsystem.ui.adapters.UserManagementAdapter;
 import com.example.blottermanagementsystem.utils.ApiClient;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -161,8 +162,8 @@ public class AdminManageUsersActivity extends BaseActivity {
                         "Email: " + user.getEmail() + "\n" +
                         "Name: " + user.getFirstName() + " " + user.getLastName() + "\n" +
                         "Role: " + user.getRole() + "\n" +
-                        "Auth Provider: " + (user.getAuthProvider() != null ? user.getAuthProvider() : "email") + "\n" +
-                        "Created: " + user.getCreatedAt();
+                        "Gender: " + user.getGender() + "\n" +
+                        "Created: " + user.getAccountCreated();
         
         new MaterialAlertDialogBuilder(this)
             .setTitle("User Details")
@@ -174,7 +175,7 @@ public class AdminManageUsersActivity extends BaseActivity {
     private void showTerminateConfirmation(User user) {
         Log.d(TAG, "⚠️ Showing terminate confirmation for: " + user.getUsername());
         
-        new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog_Centered)
+        new MaterialAlertDialogBuilder(this)
             .setTitle("⚠️ Terminate Account?")
             .setMessage("Are you sure you want to terminate the account for " + user.getUsername() + "?\n\n" +
                        "This action will:\n" +
@@ -204,7 +205,7 @@ public class AdminManageUsersActivity extends BaseActivity {
         Log.d(TAG, "☁️ Deleting from Neon database: " + user.getId());
         
         try {
-            ApiClient.getApiService().deleteUser(user.getId())
+            ApiClient.getApiService().deleteUser(String.valueOf(user.getId()))
                 .enqueue(new Callback<java.util.Map<String, Object>>() {
                     @Override
                     public void onResponse(Call<java.util.Map<String, Object>> call, 
