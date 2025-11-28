@@ -59,6 +59,13 @@ public interface ApiService {
         @Body Map<String, Object> pictureData
     );
     
+    /**
+     * Delete User Account (Admin only)
+     * DELETE /api/auth/users/{userId}
+     */
+    @DELETE("api/auth/users/{userId}")
+    Call<Map<String, Object>> deleteUser(@Path("userId") String userId);
+    
     // ============ REPORTS ============
     
     /**
