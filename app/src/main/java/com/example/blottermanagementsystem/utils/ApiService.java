@@ -263,4 +263,48 @@ public interface ApiService {
      */
     @DELETE("api/summons/{id}")
     Call<String> deleteSummons(@Path("id") int summonsId);
+    
+    // ============ PERSON HISTORY ============
+    
+    /**
+     * Search person history
+     * POST /api/person-history/search
+     */
+    @POST("api/person-history/search")
+    Call<Map<String, Object>> searchPersonHistory(@Body Map<String, Object> searchData);
+    
+    /**
+     * Get complete person history
+     * GET /api/person-history/{personId}
+     */
+    @GET("api/person-history/{personId}")
+    Call<Map<String, Object>> getPersonCompleteHistory(@Path("personId") String personId);
+    
+    /**
+     * Create person profile
+     * POST /api/person-history/profile
+     */
+    @POST("api/person-history/profile")
+    Call<Map<String, Object>> createPersonProfile(@Body Map<String, Object> profileData);
+    
+    /**
+     * Add criminal record
+     * POST /api/person-history/criminal-record
+     */
+    @POST("api/person-history/criminal-record")
+    Call<Map<String, Object>> addCriminalRecord(@Body Map<String, Object> recordData);
+    
+    /**
+     * Add case involvement
+     * POST /api/person-history/case-involvement
+     */
+    @POST("api/person-history/case-involvement")
+    Call<Map<String, Object>> addCaseInvolvement(@Body Map<String, Object> involvementData);
+    
+    /**
+     * Update person risk level
+     * PUT /api/person-history/{personId}/risk-level
+     */
+    @PUT("api/person-history/{personId}/risk-level")
+    Call<Map<String, Object>> updatePersonRiskLevel(@Path("personId") String personId, @Body Map<String, Object> riskData);
 }
