@@ -1,18 +1,24 @@
 package com.example.blottermanagementsystem.ui.activities;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.blottermanagementsystem.R;
 import com.example.blottermanagementsystem.data.database.BlotterDatabase;
 import com.example.blottermanagementsystem.data.entity.PersonHistory;
+import com.example.blottermanagementsystem.services.PersonHistoryService;
+import com.example.blottermanagementsystem.services.SyncManager;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 
 public class OfficerViewPersonHistoryActivity extends BaseActivity {
@@ -20,18 +26,24 @@ public class OfficerViewPersonHistoryActivity extends BaseActivity {
     private static final String EXTRA_PERSON_ID = "person_id";
     private static final String EXTRA_PERSON_NAME = "person_name";
     
+    private static final String TAG = "OfficerViewPersonHistory";
+    
     private Toolbar toolbar;
     private TextView tvPersonName, tvTotalCases, tvSuspectCount, tvRespondentCount;
     private RecyclerView recyclerHistory;
     private LinearLayout emptyState;
     private Chip chipAll, chipSuspect, chipRespondent;
+    private FloatingActionButton fabAddRecord, fabSync;
     
     private BlotterDatabase database;
+    private PersonHistoryService personHistoryService;
+    private SyncManager syncManager;
     private int personId;
     private String personName;
     private List<PersonHistory> allHistory = new ArrayList<>();
     private List<PersonHistory> filteredHistory = new ArrayList<>();
     private String currentFilter = "All";
+    private String currentUserId;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,13 +52,16 @@ public class OfficerViewPersonHistoryActivity extends BaseActivity {
         
         try {
             database = BlotterDatabase.getDatabase(this);
+            personHistoryService = new PersonHistoryService(this);
+            syncManager = new SyncManager(this);
+            currentUserId = getSharedPreferences("UserSession", MODE_PRIVATE).getString("userId", "");
             
             // Get person data from intent
             personId = getIntent().getIntExtra(EXTRA_PERSON_ID, -1);
             personName = getIntent().getStringExtra(EXTRA_PERSON_NAME);
             
             if (personId == -1) {
-                android.util.Log.e("OfficerViewPersonHistory", "Invalid person ID");
+                Log.e(TAG, "Invalid person ID");
                 finish();
                 return;
             }
@@ -55,10 +70,11 @@ public class OfficerViewPersonHistoryActivity extends BaseActivity {
             setupToolbar();
             setupListeners();
             loadPersonHistory();
+            syncWithCloud();
             
-            android.util.Log.d("OfficerViewPersonHistory", "Activity created for person: " + personName);
+            Log.d(TAG, "✅ Activity created for person: " + personName);
         } catch (Exception e) {
-            android.util.Log.e("OfficerViewPersonHistory", "Error in onCreate: " + e.getMessage(), e);
+            Log.e(TAG, "Error in onCreate: " + e.getMessage(), e);
         }
     }
     
@@ -118,8 +134,9 @@ public class OfficerViewPersonHistoryActivity extends BaseActivity {
                     filterAndDisplayHistory();
                 }
             });
+            
         } catch (Exception e) {
-            android.util.Log.e("OfficerViewPersonHistory", "Error setting up listeners: " + e.getMessage());
+            Log.e(TAG, "Error setting up listeners: " + e.getMessage());
         }
     }
     
@@ -202,7 +219,42 @@ public class OfficerViewPersonHistoryActivity extends BaseActivity {
                 emptyState.setVisibility(View.GONE);
             }
         } catch (Exception e) {
-            android.util.Log.e("OfficerViewPersonHistory", "Error updating empty state: " + e.getMessage());
+            Log.e(TAG, "Error updating empty state: " + e.getMessage());
         }
+    }
+    
+    // ============ CLOUD SYNC METHODS ============
+    
+    private void syncWithCloud() {
+        Log.d(TAG, "☁️ Syncing with cloud for person: " + personName);
+        Toast.makeText(this, "Syncing with cloud...", Toast.LENGTH_SHORT).show();
+        
+        personHistoryService.getPersonCompleteHistory(personName, new PersonHistoryService.CompleteHistoryCallback() {
+            @Override
+            public void onSuccess(Map<String, Object> history) {
+                Log.d(TAG, "✅ Cloud sync successful");
+                Toast.makeText(OfficerViewPersonHistoryActivity.this, "✅ Sync complete", Toast.LENGTH_SHORT).show();
+                loadPersonHistory();
+            }
+
+            @Override
+            public void onError(String error) {
+                Log.e(TAG, "❌ Cloud sync error: " + error);
+                Toast.makeText(OfficerViewPersonHistoryActivity.this, "Sync failed: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    
+    private void showAddRecordDialog() {
+        Log.d(TAG, "➕ Showing add record dialog");
+        Toast.makeText(this, "Add Record feature coming soon", Toast.LENGTH_SHORT).show();
+        // TODO: Implement add record dialog
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "📋 Activity resumed - refreshing data");
+        loadPersonHistory();
     }
 }
