@@ -78,46 +78,54 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
     }
   )
 
-  // Register (Public - User role only, but accepts role parameter for admin/officer creation)
+  // Register (Email/Password signup)
   .post(
     "/register",
     async ({ body, set }) => {
       try {
-        const { username, password, firstName, lastName, role } = body;
+        const { username, email, password, firstName, lastName, profilePictureUrl } = body;
 
         // Validate input
-        if (!username || !password || !firstName || !lastName) {
+        if (!username || !email || !password || !firstName || !lastName) {
           set.status = 400;
-          return { success: false, message: "Missing required fields" };
+          return { success: false, message: "Missing required fields: username, email, password, firstName, lastName" };
         }
 
         // Check if username exists
-        const existingUser = await db.query.users.findFirst({
-          where: eq(users.username, username),
+        const existingUsername = await db.query.users.findFirst({
+          where: eq(users.username, username.toLowerCase()),
         });
 
-        if (existingUser) {
+        if (existingUsername) {
           set.status = 400;
           return { success: false, message: "Username already exists" };
+        }
+
+        // Check if email exists
+        const existingEmail = await db.query.users.findFirst({
+          where: eq(users.email, email.toLowerCase()),
+        });
+
+        if (existingEmail) {
+          set.status = 400;
+          return { success: false, message: "Email already exists" };
         }
 
         // Hash password with bcrypt
         const hashedPassword = await bcrypt.hash(password, 10);
         
-        // Use provided role or default to "User" for public registration
-        const userRole = role || "User";
-        
         const [newUser] = await db
           .insert(users)
           .values({
             username: username.toLowerCase(),
+            email: email.toLowerCase(),
             password: hashedPassword,
             firstName: firstName.trim(),
             lastName: lastName.trim(),
-            role: userRole.charAt(0).toUpperCase() + userRole.slice(1).toLowerCase(),
+            profilePictureUrl: profilePictureUrl || null,
+            role: "user",
             isActive: true,
-            profileCompleted: false,
-            mustChangePassword: false,
+            forcePasswordChange: false,
           })
           .returning();
 
@@ -131,10 +139,11 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
             user: {
               id: newUser.id,
               username: newUser.username,
+              email: newUser.email,
               firstName: newUser.firstName,
               lastName: newUser.lastName,
               role: newUser.role,
-              profileCompleted: newUser.profileCompleted,
+              profilePictureUrl: newUser.profilePictureUrl,
             },
             token: token,
           },
@@ -151,10 +160,118 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
     {
       body: t.Object({
         username: t.String(),
+        email: t.String(),
         password: t.String(),
         firstName: t.String(),
         lastName: t.String(),
-        role: t.Optional(t.String()),
+        profilePictureUrl: t.Optional(t.String()),
+      }),
+    }
+  )
+
+  // Google Sign-In endpoint
+  .post(
+    "/google",
+    async ({ body, set }) => {
+      try {
+        const { googleId, email, firstName, lastName, profilePictureUrl } = body;
+
+        // Validate input
+        if (!googleId || !email || !firstName || !lastName) {
+          set.status = 400;
+          return { success: false, message: "Missing required Google fields" };
+        }
+
+        // Check if user exists by Google ID
+        let user = await db.query.users.findFirst({
+          where: eq(users.googleId, googleId),
+        });
+
+        if (user) {
+          // Existing Google user - update last login
+          const [updatedUser] = await db
+            .update(users)
+            .set({
+              lastLogin: new Date(),
+              profilePictureUrl: profilePictureUrl || user.profilePictureUrl,
+            })
+            .where(eq(users.id, user.id))
+            .returning();
+
+          const token = Buffer.from(`${updatedUser.id}:${updatedUser.username}:${Date.now()}`).toString('base64');
+
+          return {
+            success: true,
+            message: "Google login successful",
+            is_new: false,
+            data: {
+              user: {
+                id: updatedUser.id,
+                username: updatedUser.username,
+                email: updatedUser.email,
+                firstName: updatedUser.firstName,
+                lastName: updatedUser.lastName,
+                role: updatedUser.role,
+                profilePictureUrl: updatedUser.profilePictureUrl,
+              },
+              token: token,
+            },
+          };
+        } else {
+          // New Google user - create account
+          const username = `${firstName.toLowerCase()}${Math.floor(Math.random() * 10000)}`;
+
+          const [newUser] = await db
+            .insert(users)
+            .values({
+              username: username,
+              email: email.toLowerCase(),
+              firstName: firstName.trim(),
+              lastName: lastName.trim(),
+              googleId: googleId,
+              profilePictureUrl: profilePictureUrl || null,
+              role: "user",
+              isActive: true,
+              lastLogin: new Date(),
+            })
+            .returning();
+
+          const token = Buffer.from(`${newUser.id}:${newUser.username}:${Date.now()}`).toString('base64');
+
+          return {
+            success: true,
+            message: "Google signup successful",
+            is_new: true,
+            data: {
+              user: {
+                id: newUser.id,
+                username: newUser.username,
+                email: newUser.email,
+                firstName: newUser.firstName,
+                lastName: newUser.lastName,
+                role: newUser.role,
+                profilePictureUrl: newUser.profilePictureUrl,
+              },
+              token: token,
+            },
+          };
+        }
+      } catch (error: any) {
+        set.status = 500;
+        return {
+          success: false,
+          message: "Google authentication failed",
+          error: error.message,
+        };
+      }
+    },
+    {
+      body: t.Object({
+        googleId: t.String(),
+        email: t.String(),
+        firstName: t.String(),
+        lastName: t.String(),
+        profilePictureUrl: t.Optional(t.String()),
       }),
     }
   )

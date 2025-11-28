@@ -1,22 +1,24 @@
-import { pgTable, serial, varchar, text, timestamp, integer, boolean } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, text, timestamp, integer, boolean, date } from "drizzle-orm/pg-core";
 
-// Users Table
+// Users Table - Updated to match new Neon schema
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  firstName: varchar("first_name", { length: 100 }).notNull(),
-  lastName: varchar("last_name", { length: 100 }).notNull(),
-  username: varchar("username", { length: 50 }).notNull().unique(),
-  password: varchar("password", { length: 255 }).notNull(),
-  role: varchar("role", { length: 20 }).notNull(), // Admin, Officer, User
-  badgeNumber: varchar("badge_number", { length: 50 }),
-  profilePhotoUri: text("profile_photo_uri"),
+  username: varchar("username", { length: 255 }).notNull().unique(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  password: varchar("password", { length: 255 }),
+  firstName: varchar("first_name", { length: 255 }).notNull(),
+  lastName: varchar("last_name", { length: 255 }).notNull(),
+  profilePictureUrl: text("profile_picture_url"),
+  googleId: varchar("google_id", { length: 255 }).unique(),
+  googleProfilePicture: text("google_profile_picture"),
+  phoneNumber: varchar("phone_number", { length: 20 }),
+  dateOfBirth: date("date_of_birth"),
+  role: varchar("role", { length: 50 }).default("user"),
+  forcePasswordChange: boolean("force_password_change").default(false),
   isActive: boolean("is_active").default(true),
-  profileCompleted: boolean("profile_completed").default(false),
-  mustChangePassword: boolean("must_change_password").default(false),
-  fcmToken: text("fcm_token"), // Firebase Cloud Messaging token
-  deviceId: varchar("device_id", { length: 255 }), // Device identifier
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
+  lastLogin: timestamp("last_login"),
 });
 
 // Blotter Reports Table
