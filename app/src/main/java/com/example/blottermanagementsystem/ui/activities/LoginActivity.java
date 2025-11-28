@@ -274,14 +274,85 @@ public class LoginActivity extends BaseActivity {
         
         hideError();
         
-        // Debug: Check what's in database for this username
-        android.util.Log.d("LoginActivity", "=== LOGIN DEBUG ===");
-        android.util.Log.d("LoginActivity", "Attempting login with:");
+        android.util.Log.d("LoginActivity", "=== LOGIN ATTEMPT ===");
         android.util.Log.d("LoginActivity", "Username: " + username);
-        android.util.Log.d("LoginActivity", "Password: " + password);
-        android.util.Log.d("LoginActivity", "Password hash: " + com.example.blottermanagementsystem.utils.SecurityUtils.hashPassword(password));
         
+        // ✅ HYBRID APPROACH: Try backend first, fallback to local
+        loginWithHybridApproach(username, password);
+    }
+    
+    private void loginWithHybridApproach(String username, String password) {
+        // Check if online
+        com.example.blottermanagementsystem.utils.NetworkMonitor networkMonitor = 
+            new com.example.blottermanagementsystem.utils.NetworkMonitor(this);
+        
+        if (networkMonitor.isNetworkAvailable()) {
+            // ✅ ONLINE: Call backend API
+            loginWithBackendAPI(username, password);
+        } else {
+            // ✅ OFFLINE: Use local database
+            loginLocally(username, password);
+        }
+    }
+    
+    private void loginWithBackendAPI(String username, String password) {
+        // Create request body
+        java.util.Map<String, Object> loginData = new java.util.HashMap<>();
+        loginData.put("username", username);
+        loginData.put("password", password);
+        
+        showLoading(true);
+        
+        // Call backend API
+        com.example.blottermanagementsystem.utils.ApiClient.getApiService().login(loginData)
+            .enqueue(new retrofit2.Callback<java.util.Map<String, Object>>() {
+                @Override
+                public void onResponse(retrofit2.Call<java.util.Map<String, Object>> call, 
+                                     retrofit2.Response<java.util.Map<String, Object>> response) {
+                    showLoading(false);
+                    
+                    if (response.isSuccessful() && response.body() != null) {
+                        android.util.Log.d("LoginActivity", "✅ Backend login successful");
+                        
+                        // Extract user data from response
+                        java.util.Map<String, Object> userData = (java.util.Map<String, Object>) response.body().get("data");
+                        if (userData != null) {
+                            java.util.Map<String, Object> user = (java.util.Map<String, Object>) userData.get("user");
+                            
+                            // Save to local preferences
+                            preferencesManager.setLoggedIn(true);
+                            preferencesManager.setUsername(username);
+                            preferencesManager.setFirstName((String) user.get("firstName"));
+                            preferencesManager.setLastName((String) user.get("lastName"));
+                            preferencesManager.setUserRole((String) user.get("role"));
+                            
+                            Toast.makeText(LoginActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
+                            handleLoginSuccess((String) user.get("role"));
+                        }
+                    } else {
+                        android.util.Log.e("LoginActivity", "❌ Backend login failed: " + response.code());
+                        // Fallback to local login
+                        loginLocally(username, password);
+                    }
+                }
+                
+                @Override
+                public void onFailure(retrofit2.Call<java.util.Map<String, Object>> call, Throwable t) {
+                    showLoading(false);
+                    android.util.Log.e("LoginActivity", "❌ Network error: " + t.getMessage());
+                    // Fallback to local login
+                    loginLocally(username, password);
+                }
+            });
+    }
+    
+    private void loginLocally(String username, String password) {
+        android.util.Log.d("LoginActivity", "📱 Using local database (offline mode)");
+        
+        // Use local ViewModel for offline login
         authViewModel.login(username, password);
+        
+        Toast.makeText(this, "Offline mode - using local data", Toast.LENGTH_SHORT).show();
     }
     
     /**

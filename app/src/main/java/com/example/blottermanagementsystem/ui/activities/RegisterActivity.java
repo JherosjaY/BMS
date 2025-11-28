@@ -236,15 +236,85 @@ public class RegisterActivity extends BaseActivity {
         
         hideError();
         
-        // Show loading for registration (AuthViewModel is async)
+        // Show loading for registration
         com.example.blottermanagementsystem.utils.GlobalLoadingManager.show(this, "Creating account...");
         
-        // Hash the password before creating user
+        // ✅ HYBRID APPROACH: Try backend first, fallback to local
+        registerWithHybridApproach(username, email, password);
+    }
+    
+    private void registerWithHybridApproach(String username, String email, String password) {
+        // Check if online
+        com.example.blottermanagementsystem.utils.NetworkMonitor networkMonitor = 
+            new com.example.blottermanagementsystem.utils.NetworkMonitor(this);
+        
+        if (networkMonitor.isNetworkAvailable()) {
+            // ✅ ONLINE: Call backend API
+            registerWithBackendAPI(username, email, password);
+        } else {
+            // ✅ OFFLINE: Save to local database
+            registerLocally(username, email, password);
+        }
+    }
+    
+    private void registerWithBackendAPI(String username, String email, String password) {
+        // Create request body
+        java.util.Map<String, Object> registrationData = new java.util.HashMap<>();
+        registrationData.put("username", username);
+        registrationData.put("email", email);
+        registrationData.put("password", password);
+        registrationData.put("firstName", "User");
+        registrationData.put("lastName", "Account");
+        
+        // Call backend API
+        com.example.blottermanagementsystem.utils.ApiClient.getApiService().register(registrationData)
+            .enqueue(new retrofit2.Callback<java.util.Map<String, Object>>() {
+                @Override
+                public void onResponse(retrofit2.Call<java.util.Map<String, Object>> call, 
+                                     retrofit2.Response<java.util.Map<String, Object>> response) {
+                    com.example.blottermanagementsystem.utils.GlobalLoadingManager.hide();
+                    
+                    if (response.isSuccessful() && response.body() != null) {
+                        android.util.Log.d("RegisterActivity", "✅ Backend registration successful");
+                        
+                        // Save to local preferences
+                        preferencesManager.setLoggedIn(true);
+                        preferencesManager.setFirstName("User");
+                        preferencesManager.setLastName("Account");
+                        preferencesManager.setUsername(username);
+                        
+                        Toast.makeText(RegisterActivity.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
+                        handleRegisterSuccess();
+                    } else {
+                        android.util.Log.e("RegisterActivity", "❌ Backend registration failed: " + response.code());
+                        // Fallback to local registration
+                        registerLocally(username, email, password);
+                    }
+                }
+                
+                @Override
+                public void onFailure(retrofit2.Call<java.util.Map<String, Object>> call, Throwable t) {
+                    android.util.Log.e("RegisterActivity", "❌ Network error: " + t.getMessage());
+                    // Fallback to local registration
+                    registerLocally(username, email, password);
+                }
+            });
+    }
+    
+    private void registerLocally(String username, String email, String password) {
+        android.util.Log.d("RegisterActivity", "📱 Saving to local database (offline mode)");
+        
+        // Hash the password
         String hashedPassword = hashPassword(password);
         
+        // Create user for local database
         User newUser = new User("User", "Account", username, hashedPassword, "User");
         newUser.setEmail(email);
+        
+        // Save to local database via ViewModel
         authViewModel.register(newUser);
+        
+        Toast.makeText(this, "Saved locally - will sync when online", Toast.LENGTH_SHORT).show();
     }
     
     private void handleRegisterSuccess() {

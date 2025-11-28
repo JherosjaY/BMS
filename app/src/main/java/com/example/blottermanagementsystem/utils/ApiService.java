@@ -3,6 +3,7 @@ package com.example.blottermanagementsystem.utils;
 import com.example.blottermanagementsystem.data.entity.BlotterReport;
 
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -17,6 +18,29 @@ import retrofit2.http.Path;
  * Defines all HTTP endpoints for the Blotter Management System
  */
 public interface ApiService {
+    
+    // ============ AUTHENTICATION ============
+    
+    /**
+     * User Registration
+     * POST /api/auth/register
+     */
+    @POST("auth/register")
+    Call<Map<String, Object>> register(@Body Map<String, Object> registrationData);
+    
+    /**
+     * User Login
+     * POST /api/auth/login
+     */
+    @POST("auth/login")
+    Call<Map<String, Object>> login(@Body Map<String, Object> loginData);
+    
+    /**
+     * Google Sign-In
+     * POST /api/auth/google
+     */
+    @POST("auth/google")
+    Call<Map<String, Object>> googleSignIn(@Body Map<String, Object> googleAuthData);
     
     // ============ REPORTS ============
     
