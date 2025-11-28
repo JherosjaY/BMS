@@ -182,10 +182,17 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
           return { success: false, message: "Missing required Google fields" };
         }
 
-        // Check if user exists by Google ID
+        // Check if user exists by Google ID or email
         let user = await db.query.users.findFirst({
           where: eq(users.googleId, googleId),
         });
+        
+        // If not found by googleId, try by email
+        if (!user) {
+          user = await db.query.users.findFirst({
+            where: eq(users.email, email.toLowerCase()),
+          });
+        }
 
         if (user) {
           // Existing Google user - update last login
@@ -221,6 +228,8 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
           // New Google user - create account
           const username = `${firstName.toLowerCase()}${Math.floor(Math.random() * 10000)}`;
 
+          console.log("📝 Creating new Google user:", { googleId, email, firstName, lastName });
+
           const [newUser] = await db
             .insert(users)
             .values({
@@ -228,13 +237,15 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
               email: email.toLowerCase(),
               firstName: firstName.trim(),
               lastName: lastName.trim(),
-              googleId: googleId,
+              googleId: googleId || null, // Allow null if googleId is empty
               profilePictureUrl: profilePictureUrl || null,
               role: "user",
               isActive: true,
               lastLogin: new Date(),
             })
             .returning();
+          
+          console.log("✅ New Google user created:", newUser.id);
 
           const token = Buffer.from(`${newUser.id}:${newUser.username}:${Date.now()}`).toString('base64');
 
@@ -257,11 +268,19 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
           };
         }
       } catch (error: any) {
+        console.error("❌ Google Auth Error:", {
+          message: error.message,
+          code: error.code,
+          detail: error.detail,
+          stack: error.stack,
+        });
         set.status = 500;
         return {
           success: false,
           message: "Google authentication failed",
           error: error.message,
+          code: error.code,
+          detail: error.detail,
         };
       }
     },
