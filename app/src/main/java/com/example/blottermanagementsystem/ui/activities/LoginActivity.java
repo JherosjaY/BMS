@@ -145,33 +145,11 @@ public class LoginActivity extends BaseActivity {
                         finish();
                         
                     } else {
-                        // User doesn't exist - REGISTER
-                        android.util.Log.d("LoginActivity", "Google user doesn't exist, creating new user: " + username);
+                        // User doesn't exist - REGISTER via Backend API
+                        android.util.Log.d("LoginActivity", "Google user doesn't exist, creating new user via backend: " + username);
                         
-                        // Create new user in database with clean username
-                        com.example.blottermanagementsystem.data.entity.User newUser = 
-                            new com.example.blottermanagementsystem.data.entity.User(firstName, lastName, username, "", "User");
-                        newUser.setEmail(email); // Save email separately
-                        newUser.setProfilePhotoUri(photoUrl);
-                        
-                        java.util.concurrent.Executors.newSingleThreadExecutor().execute(() -> {
-                            long userId = database.userDao().insertUser(newUser);
-                            
-                            runOnUiThread(() -> {
-                                // Save user data to preferences
-                                preferencesManager.setUserId((int) userId);
-                                preferencesManager.setLoggedIn(true);
-                                preferencesManager.setUserRole("User");
-                                preferencesManager.setFirstName(firstName);
-                                preferencesManager.setLastName(lastName);
-                                
-                                // Navigate to Profile Picture Selection
-                                Intent intent = new Intent(LoginActivity.this, com.example.blottermanagementsystem.ui.activities.ProfilePictureSelectionActivity.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                startActivity(intent);
-                                finish();
-                            });
-                        });
+                        // ✅ Call backend API to register Google user
+                        registerGoogleUserViaBackend(email, firstName, lastName, photoUrl);
                     }
                 });
             });
@@ -179,6 +157,52 @@ public class LoginActivity extends BaseActivity {
         } catch (ApiException e) {
             Toast.makeText(this, "Google Sign-In failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
+    
+    private void registerGoogleUserViaBackend(String email, String firstName, String lastName, String photoUrl) {
+        // Create request body for backend
+        java.util.Map<String, Object> googleAuthData = new java.util.HashMap<>();
+        googleAuthData.put("googleId", email); // Use email as Google ID for now
+        googleAuthData.put("email", email);
+        googleAuthData.put("firstName", firstName);
+        googleAuthData.put("lastName", lastName);
+        googleAuthData.put("profilePictureUrl", photoUrl != null ? photoUrl : "");
+        
+        // Call backend API
+        com.example.blottermanagementsystem.utils.ApiClient.getApiService().googleSignIn(googleAuthData)
+            .enqueue(new retrofit2.Callback<java.util.Map<String, Object>>() {
+                @Override
+                public void onResponse(retrofit2.Call<java.util.Map<String, Object>> call, 
+                                     retrofit2.Response<java.util.Map<String, Object>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        android.util.Log.d("LoginActivity", "✅ Google user registered in backend");
+                        
+                        // Save to local preferences
+                        preferencesManager.setLoggedIn(true);
+                        preferencesManager.setFirstName(firstName);
+                        preferencesManager.setLastName(lastName);
+                        preferencesManager.setUserRole("user");
+                        preferencesManager.saveGoogleAccountInfo(email, firstName + " " + lastName, photoUrl);
+                        
+                        Toast.makeText(LoginActivity.this, "Google signup successful!", Toast.LENGTH_SHORT).show();
+                        
+                        // Navigate to Profile Picture Selection
+                        Intent intent = new Intent(LoginActivity.this, com.example.blottermanagementsystem.ui.activities.ProfilePictureSelectionActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        android.util.Log.e("LoginActivity", "❌ Backend registration failed: " + response.code());
+                        Toast.makeText(LoginActivity.this, "Registration failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+                
+                @Override
+                public void onFailure(retrofit2.Call<java.util.Map<String, Object>> call, Throwable t) {
+                    android.util.Log.e("LoginActivity", "❌ Network error: " + t.getMessage());
+                    Toast.makeText(LoginActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
     }
     
     private void setupViewModel() {

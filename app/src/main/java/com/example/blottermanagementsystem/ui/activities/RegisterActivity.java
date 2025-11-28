@@ -148,66 +148,57 @@ public class RegisterActivity extends BaseActivity {
             // Save Google account info
             preferencesManager.saveGoogleAccountInfo(email, displayName, photoUrl);
             
-            // Create User in database
-            User newUser = new User(firstName, lastName, email, "", "User");
-            newUser.setProfilePhotoUri(photoUrl); // Save Google photo
-            
-            // Register user in database using ViewModel
-            authViewModel.register(newUser);
-            
-            // Wait for registration to complete, then navigate
-            authViewModel.getRegisterState().observe(this, state -> {
-                if (state == AuthViewModel.AuthState.SUCCESS) {
-                    // Get the created user ID
-                    java.util.concurrent.Executors.newSingleThreadExecutor().execute(() -> {
-                        com.example.blottermanagementsystem.data.database.BlotterDatabase database = 
-                            com.example.blottermanagementsystem.data.database.BlotterDatabase.getDatabase(this);
-                        User createdUser = database.userDao().getUserByUsername(email);
-                        
-                        android.util.Log.d("RegisterActivity", "=== GOOGLE SIGN-UP ===");
-                        android.util.Log.d("RegisterActivity", "Email: " + email);
-                        android.util.Log.d("RegisterActivity", "User found: " + (createdUser != null));
-                        
-                        if (createdUser != null) {
-                            int userId = createdUser.getId();
-                            android.util.Log.d("RegisterActivity", "✅ User ID: " + userId);
-                            
-                            runOnUiThread(() -> {
-                                // Save user ID and data to preferences
-                                preferencesManager.setUserId(userId);
-                                preferencesManager.setLoggedIn(true);
-                                preferencesManager.setUserRole("User");
-                                preferencesManager.setFirstName(firstName);
-                                preferencesManager.setLastName(lastName);
-                                
-                                android.util.Log.d("RegisterActivity", "✅ Saved userId to preferences: " + userId);
-                                
-                                Toast.makeText(this, "Signed up with Google: " + displayName, Toast.LENGTH_SHORT).show();
-                                
-                                // Navigate to Profile Picture Selection
-                                Intent intent = new Intent(RegisterActivity.this, ProfilePictureSelectionActivity.class);
-                                startActivity(intent);
-                                finish();
-                            });
-                        } else {
-                            android.util.Log.e("RegisterActivity", "❌ User NOT found in database after registration!");
-                        }
-                    });
-                } else if (state == AuthViewModel.AuthState.EMAIL_EXISTS) {
-                    Toast.makeText(this, "This Google account is already registered. Please sign in instead.", Toast.LENGTH_LONG).show();
-                    // Navigate back to login
-                    Intent intent = new Intent(this, com.example.blottermanagementsystem.ui.activities.LoginActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
-                } else if (state == AuthViewModel.AuthState.ERROR) {
-                    Toast.makeText(this, "Registration failed. Account may already exist.", Toast.LENGTH_SHORT).show();
-                }
-            });
+            // ✅ Call backend API to register Google user
+            registerGoogleUserViaBackend(email, firstName, lastName, photoUrl);
             
         } catch (ApiException e) {
             Toast.makeText(this, "Google Sign-Up failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
+    
+    private void registerGoogleUserViaBackend(String email, String firstName, String lastName, String photoUrl) {
+        // Create request body for backend
+        java.util.Map<String, Object> googleAuthData = new java.util.HashMap<>();
+        googleAuthData.put("googleId", email); // Use email as Google ID for now
+        googleAuthData.put("email", email);
+        googleAuthData.put("firstName", firstName);
+        googleAuthData.put("lastName", lastName);
+        googleAuthData.put("profilePictureUrl", photoUrl != null ? photoUrl : "");
+        
+        // Call backend API
+        com.example.blottermanagementsystem.utils.ApiClient.getApiService().googleSignIn(googleAuthData)
+            .enqueue(new retrofit2.Callback<java.util.Map<String, Object>>() {
+                @Override
+                public void onResponse(retrofit2.Call<java.util.Map<String, Object>> call, 
+                                     retrofit2.Response<java.util.Map<String, Object>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        android.util.Log.d("RegisterActivity", "✅ Google user registered in backend");
+                        
+                        // Save to local preferences
+                        preferencesManager.setLoggedIn(true);
+                        preferencesManager.setFirstName(firstName);
+                        preferencesManager.setLastName(lastName);
+                        preferencesManager.setUserRole("user");
+                        
+                        Toast.makeText(RegisterActivity.this, "Google signup successful!", Toast.LENGTH_SHORT).show();
+                        
+                        // Navigate to Profile Picture Selection
+                        Intent intent = new Intent(RegisterActivity.this, ProfilePictureSelectionActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        android.util.Log.e("RegisterActivity", "❌ Backend registration failed: " + response.code());
+                        Toast.makeText(RegisterActivity.this, "Registration failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+                
+                @Override
+                public void onFailure(retrofit2.Call<java.util.Map<String, Object>> call, Throwable t) {
+                    android.util.Log.e("RegisterActivity", "❌ Network error: " + t.getMessage());
+                    Toast.makeText(RegisterActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
     }
     
     private void attemptRegister() {
