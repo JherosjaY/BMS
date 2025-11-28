@@ -375,8 +375,6 @@ public class LoginActivity extends BaseActivity {
         
         // Use local ViewModel for offline login
         authViewModel.login(username, password);
-        
-        Toast.makeText(this, "Offline mode - using local data", Toast.LENGTH_SHORT).show();
     }
     
     /**
@@ -468,13 +466,13 @@ public class LoginActivity extends BaseActivity {
     
     private void showLoading(boolean show) {
         if (show) {
-            com.example.blottermanagementsystem.utils.GlobalLoadingManager.show(this, "Signing in...");
             btnLogin.setEnabled(false);
+            btnLogin.setText("Signing in...");
             etUsername.setEnabled(false);
             etPassword.setEnabled(false);
         } else {
-            com.example.blottermanagementsystem.utils.GlobalLoadingManager.hide();
             btnLogin.setEnabled(true);
+            btnLogin.setText("Sign in");
             etUsername.setEnabled(true);
             etPassword.setEnabled(true);
         }

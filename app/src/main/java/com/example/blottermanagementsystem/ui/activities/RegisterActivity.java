@@ -227,8 +227,9 @@ public class RegisterActivity extends BaseActivity {
         
         hideError();
         
-        // Show loading for registration
-        com.example.blottermanagementsystem.utils.GlobalLoadingManager.show(this, "Creating account...");
+        // Show loading on button (disable and show progress)
+        btnRegister.setEnabled(false);
+        btnRegister.setText("Creating account...");
         
         // ✅ HYBRID APPROACH: Try backend first, fallback to local
         registerWithHybridApproach(username, email, password);
@@ -304,8 +305,6 @@ public class RegisterActivity extends BaseActivity {
         
         // Save to local database via ViewModel
         authViewModel.register(newUser);
-        
-        Toast.makeText(this, "Saved locally - will sync when online", Toast.LENGTH_SHORT).show();
     }
     
     private void handleRegisterSuccess() {
@@ -381,11 +380,12 @@ public class RegisterActivity extends BaseActivity {
     
     private void showLoading(boolean show) {
         if (show) {
-            com.example.blottermanagementsystem.utils.GlobalLoadingManager.show(this, "Creating account...");
+            btnRegister.setEnabled(false);
+            btnRegister.setText("Creating account...");
         } else {
-            com.example.blottermanagementsystem.utils.GlobalLoadingManager.hide();
+            btnRegister.setEnabled(true);
+            btnRegister.setText("Create account");
         }
-        btnRegister.setEnabled(!show);
         etUsernameField.setEnabled(!show);
         etUsername.setEnabled(!show);
         etPassword.setEnabled(!show);
