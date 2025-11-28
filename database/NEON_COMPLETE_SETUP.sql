@@ -10,6 +10,7 @@
 -- ============================================================================
 
 -- Drop existing tables if they exist (careful in production!)
+-- Drop in correct order to avoid foreign key constraint errors
 DROP TABLE IF EXISTS hearing_notifications CASCADE;
 DROP TABLE IF EXISTS hearing_minutes CASCADE;
 DROP TABLE IF EXISTS hearing_attendees CASCADE;
@@ -20,6 +21,9 @@ DROP TABLE IF EXISTS criminal_records CASCADE;
 DROP TABLE IF EXISTS person_profiles CASCADE;
 DROP TABLE IF EXISTS user_images CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
+
+-- Disable foreign key constraints temporarily
+SET session_replication_role = replica;
 
 -- ============================================================================
 -- USERS TABLE
@@ -507,6 +511,12 @@ BEGIN
     END IF;
 END;
 $$ LANGUAGE plpgsql;
+
+-- ============================================================================
+-- RE-ENABLE FOREIGN KEY CONSTRAINTS
+-- ============================================================================
+
+SET session_replication_role = DEFAULT;
 
 -- ============================================================================
 -- SETUP COMPLETE
