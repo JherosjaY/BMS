@@ -73,20 +73,18 @@ public class UserManagementAdapter extends RecyclerView.Adapter<UserManagementAd
             String authProvider = user.getAuthProvider() != null ? user.getAuthProvider() : "email";
             if ("google".equalsIgnoreCase(authProvider)) {
                 tvAuthProvider.setText("🔵 Google");
-                tvAuthProvider.setTextColor(itemView.getContext().getResources().getColor(R.color.info_blue, null));
             } else {
                 tvAuthProvider.setText("📧 Email");
-                tvAuthProvider.setTextColor(itemView.getContext().getResources().getColor(R.color.text_secondary, null));
             }
             
-            // Set role icon
+            // Set role icon based on role
             String role = user.getRole();
             if ("Admin".equalsIgnoreCase(role)) {
-                ivUserIcon.setImageResource(R.drawable.ic_admin);
+                ivUserIcon.setImageResource(android.R.drawable.ic_dialog_info);
             } else if ("Officer".equalsIgnoreCase(role)) {
-                ivUserIcon.setImageResource(R.drawable.ic_officer);
+                ivUserIcon.setImageResource(android.R.drawable.ic_menu_view);
             } else {
-                ivUserIcon.setImageResource(R.drawable.ic_user);
+                ivUserIcon.setImageResource(android.R.drawable.ic_menu_myplaces);
             }
             
             // Click listener

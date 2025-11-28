@@ -4,15 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background">
+    android:background="@android:color/white">
 
     <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/primary"
-        app:titleTextColor="@color/white" />
+        android:background="?attr/colorPrimary"
+        app:titleTextColor="@android:color/white" />
 
     <!-- Search Section -->
     <LinearLayout
@@ -20,9 +20,9 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="16dp"
-        android:background="@color/surface">
+        android:background="@android:color/white">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <EditText
             android:id="@+id/etSearchUser"
             android:layout_width="0dp"
             android:layout_height="48dp"
@@ -31,7 +31,7 @@
             android:inputType="text"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
-            android:background="@drawable/rounded_edit_text_bg"
+            android:background="@drawable/abc_edit_text_material"
             android:textSize="14sp" />
 
         <com.google.android.material.button.MaterialButton
