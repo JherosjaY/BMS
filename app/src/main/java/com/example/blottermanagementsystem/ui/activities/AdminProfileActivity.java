@@ -56,6 +56,9 @@ public class AdminProfileActivity extends BaseActivity {
         cardSystemSettings = findViewById(R.id.cardSystemSettings);
         
         btnLogout = findViewById(R.id.btnLogout);
+        
+        // ⭐🛡️ ADMIN PROFILE PICTURE: Fixed Shield Icon (Hardcoded, Not Editable)
+        android.util.Log.d("AdminProfileActivity", "✅ Admin profile - showing fixed shield icon");
     }
     
     private void setupToolbar() {

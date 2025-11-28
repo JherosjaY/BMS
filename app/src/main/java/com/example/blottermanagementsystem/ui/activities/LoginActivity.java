@@ -440,8 +440,12 @@ public class LoginActivity extends BaseActivity {
     private void handleLoginSuccess(String role) {
         android.util.Log.d("LoginActivity", "Navigating to dashboard, role: " + role);
         
+        // Detect actual role based on username/email patterns
+        String detectedRole = detectUserRole(role);
+        android.util.Log.d("LoginActivity", "Detected role: " + detectedRole);
+        
         Intent intent;
-        switch (role.toLowerCase()) {
+        switch (detectedRole.toLowerCase()) {
             case "admin":
                 intent = new Intent(this, AdminDashboardActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -540,6 +544,50 @@ public class LoginActivity extends BaseActivity {
                 .setStartDelay(200)
                 .start();
         }
+    }
+    
+    /**
+     * ROLE DETECTION LOGIC
+     * Determines user role based on username/email patterns
+     */
+    private String detectUserRole(String databaseRole) {
+        String username = preferencesManager.getUsername();
+        String email = preferencesManager.getFirstName(); // Assuming email is stored here
+        
+        if (username == null) {
+            username = etUsername.getText().toString().toLowerCase();
+        } else {
+            username = username.toLowerCase();
+        }
+        
+        android.util.Log.d("LoginActivity", "🔍 ROLE DETECTION - Username: " + username);
+        
+        // RULE 1: Username starts with "off." = OFFICER
+        if (username.startsWith("off.")) {
+            android.util.Log.d("LoginActivity", "✅ DETECTED: OFFICER (username starts with 'off.')");
+            preferencesManager.setUserRole("Officer");
+            return "officer";
+        }
+        
+        // RULE 2: Built-in admin accounts
+        if (username.equals("admin") || username.equals("sentin")) {
+            android.util.Log.d("LoginActivity", "✅ DETECTED: ADMIN (built-in account)");
+            preferencesManager.setUserRole("Admin");
+            return "admin";
+        }
+        
+        // RULE 3: Google Auth users = USER
+        boolean isGoogleAuth = preferencesManager.isGoogleAccount();
+        if (isGoogleAuth) {
+            android.util.Log.d("LoginActivity", "✅ DETECTED: USER (Google Auth)");
+            preferencesManager.setUserRole("User");
+            return "user";
+        }
+        
+        // RULE 4: Regular signup = USER
+        android.util.Log.d("LoginActivity", "✅ DETECTED: USER (regular signup)");
+        preferencesManager.setUserRole("User");
+        return "user";
     }
     
 }
