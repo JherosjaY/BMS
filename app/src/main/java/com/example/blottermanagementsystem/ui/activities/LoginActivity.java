@@ -89,13 +89,14 @@ public class LoginActivity extends BaseActivity {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             
             // Get user info
+            String googleId = account.getId(); // ✅ Use actual Google ID
             String email = account.getEmail();
             String displayName = account.getDisplayName();
             String photoUrl = account.getPhotoUrl() != null ? account.getPhotoUrl().toString() : null;
             
             // Extract clean username from email (before @)
             String username = email.split("@")[0];
-            android.util.Log.d("LoginActivity", "Google Sign-In - Email: " + email + ", Username: " + username);
+            android.util.Log.d("LoginActivity", "Google Sign-In - GoogleID: " + googleId + ", Email: " + email + ", Username: " + username);
             
             // Parse display name into first and last name
             final String firstName;
@@ -149,7 +150,7 @@ public class LoginActivity extends BaseActivity {
                         android.util.Log.d("LoginActivity", "Google user doesn't exist, creating new user via backend: " + username);
                         
                         // ✅ Call backend API to register Google user
-                        registerGoogleUserViaBackend(email, firstName, lastName, photoUrl);
+                        registerGoogleUserViaBackend(googleId, email, firstName, lastName, photoUrl);
                     }
                 });
             });
@@ -159,10 +160,10 @@ public class LoginActivity extends BaseActivity {
         }
     }
     
-    private void registerGoogleUserViaBackend(String email, String firstName, String lastName, String photoUrl) {
+    private void registerGoogleUserViaBackend(String googleId, String email, String firstName, String lastName, String photoUrl) {
         // Create request body for backend
         java.util.Map<String, Object> googleAuthData = new java.util.HashMap<>();
-        googleAuthData.put("googleId", email); // Use email as Google ID for now
+        googleAuthData.put("googleId", googleId); // ✅ Use actual Google ID
         googleAuthData.put("email", email);
         googleAuthData.put("firstName", firstName);
         googleAuthData.put("lastName", lastName);
