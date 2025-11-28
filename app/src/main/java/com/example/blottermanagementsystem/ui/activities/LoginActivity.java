@@ -193,8 +193,8 @@ public class LoginActivity extends BaseActivity {
                         startActivity(intent);
                         finish();
                     } else {
-                        android.util.Log.e("LoginActivity", "❌ Backend registration failed: " + response.code());
-                        Toast.makeText(LoginActivity.this, "Registration failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                        // Handle specific error codes from backend
+                        handleGoogleSignInError(response);
                     }
                 }
                 
@@ -204,6 +204,43 @@ public class LoginActivity extends BaseActivity {
                     Toast.makeText(LoginActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
+    }
+    
+    private void handleGoogleSignInError(retrofit2.Response<java.util.Map<String, Object>> response) {
+        int statusCode = response.code();
+        String errorMessage = "Google Sign-In failed";
+        
+        try {
+            if (response.errorBody() != null) {
+                String errorBody = response.errorBody().string();
+                android.util.Log.e("LoginActivity", "❌ Google error response: " + errorBody);
+                
+                // Try to parse error as JSON
+                org.json.JSONObject errorJson = new org.json.JSONObject(errorBody);
+                String error = errorJson.optString("error", "");
+                String message = errorJson.optString("message", "");
+                
+                // Handle specific error codes
+                if ("EMAIL_EXISTS_DIFFERENT_METHOD".equals(error)) {
+                    errorMessage = "This email is already registered with a different account. Please use your original login method.";
+                    Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                    return;
+                } else if (!message.isEmpty()) {
+                    errorMessage = message;
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.e("LoginActivity", "Error parsing error response: " + e.getMessage());
+        }
+        
+        // If 409 (Conflict), show specific error
+        if (statusCode == 409) {
+            Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+        } else {
+            // For other errors, show generic message
+            android.util.Log.e("LoginActivity", "❌ Google Sign-In failed: " + statusCode);
+            Toast.makeText(LoginActivity.this, "Google Sign-In failed: " + statusCode, Toast.LENGTH_SHORT).show();
+        }
     }
     
     private void setupViewModel() {

@@ -279,9 +279,8 @@ public class RegisterActivity extends BaseActivity {
                         Toast.makeText(RegisterActivity.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
                         handleRegisterSuccess();
                     } else {
-                        android.util.Log.e("RegisterActivity", "❌ Backend registration failed: " + response.code());
-                        // Fallback to local registration
-                        registerLocally(username, email, password);
+                        // Handle specific error codes from backend
+                        handleRegistrationError(response);
                     }
                 }
                 
@@ -292,6 +291,61 @@ public class RegisterActivity extends BaseActivity {
                     registerLocally(username, email, password);
                 }
             });
+    }
+    
+    private void handleRegistrationError(retrofit2.Response<java.util.Map<String, Object>> response) {
+        int statusCode = response.code();
+        String errorMessage = "Registration failed";
+        
+        try {
+            if (response.errorBody() != null) {
+                String errorBody = response.errorBody().string();
+                android.util.Log.e("RegisterActivity", "❌ Error response: " + errorBody);
+                
+                // Try to parse error as JSON
+                org.json.JSONObject errorJson = new org.json.JSONObject(errorBody);
+                String error = errorJson.optString("error", "");
+                String message = errorJson.optString("message", "");
+                
+                // Handle specific error codes
+                if ("DUPLICATE_EMAIL".equals(error)) {
+                    errorMessage = "Email already registered. Please use another email.";
+                    showError(errorMessage);
+                    btnRegister.setEnabled(true);
+                    btnRegister.setText("Create account");
+                    return;
+                } else if ("DUPLICATE_USERNAME".equals(error)) {
+                    errorMessage = "Username already taken. Please choose another.";
+                    showError(errorMessage);
+                    btnRegister.setEnabled(true);
+                    btnRegister.setText("Create account");
+                    return;
+                } else if ("EMAIL_EXISTS_DIFFERENT_METHOD".equals(error)) {
+                    errorMessage = "Email already registered with a different account.";
+                    showError(errorMessage);
+                    btnRegister.setEnabled(true);
+                    btnRegister.setText("Create account");
+                    return;
+                } else if (!message.isEmpty()) {
+                    errorMessage = message;
+                }
+            }
+        } catch (Exception e) {
+            android.util.Log.e("RegisterActivity", "Error parsing error response: " + e.getMessage());
+        }
+        
+        // If 409 (Conflict), show specific error
+        if (statusCode == 409) {
+            showError(errorMessage);
+            btnRegister.setEnabled(true);
+            btnRegister.setText("Create account");
+        } else {
+            // For other errors, fallback to local registration
+            android.util.Log.e("RegisterActivity", "❌ Backend registration failed: " + statusCode);
+            registerLocally(etUsernameField.getText().toString().trim(), 
+                          etUsername.getText().toString().trim(), 
+                          etPassword.getText().toString().trim());
+        }
     }
     
     private void registerLocally(String username, String email, String password) {
