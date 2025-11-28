@@ -298,11 +298,11 @@ public class UserDashboardActivity extends BaseActivity {
             startActivity(new Intent(this, NotificationsActivity.class));
         });
         
-        // Profile picture click -> Go to Profile Screen
+        // Profile picture click -> Go to User Profile Screen
         if (ivProfilePic != null) {
             ivProfilePic.setOnClickListener(v -> {
                 try {
-                    startActivity(new Intent(this, ProfileActivity.class));
+                    startActivity(new Intent(this, UserProfileActivity.class));
                 } catch (Exception e) {
                     e.printStackTrace();
                     Toast.makeText(this, "Error opening profile", Toast.LENGTH_SHORT).show();
@@ -314,7 +314,7 @@ public class UserDashboardActivity extends BaseActivity {
         if (ivUserProfile != null) {
             ivUserProfile.setOnClickListener(v -> {
                 try {
-                    startActivity(new Intent(this, ProfileActivity.class));
+                    startActivity(new Intent(this, UserProfileActivity.class));
                 } catch (Exception e) {
                     e.printStackTrace();
                     Toast.makeText(this, "Error opening profile", Toast.LENGTH_SHORT).show();
