@@ -93,47 +93,60 @@ public class GoogleAuthManager {
     private void syncUserToNeonDatabase(FirebaseUser firebaseUser, AuthCallback callback) {
         Log.d(TAG, "🔄 Syncing user to Neon database...");
         
-        User user = new User();
-        user.setUsername(firebaseUser.getEmail());
-        user.setEmail(firebaseUser.getEmail());
-        user.setFirstName(firebaseUser.getDisplayName() != null ? firebaseUser.getDisplayName() : "");
-        user.setProfilePhotoUri(firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : "");
-        user.setRole("User"); // Default role for new users
-        user.setActive(true);
+        // Extract Google account data
+        String googleId = firebaseUser.getUid();
+        String email = firebaseUser.getEmail();
+        String displayName = firebaseUser.getDisplayName() != null ? firebaseUser.getDisplayName() : "User";
+        String profilePictureUrl = firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : "";
         
-        // ✅ SYNC TO CLOUDBASE/NEON DATABASE
-        // This would call your backend API
-        /*
-        ApiClient.syncUserToBackend(user, new ApiClient.ApiCallback<User>() {
+        // Split display name into first and last name
+        String[] nameParts = displayName.split(" ", 2);
+        String firstName = nameParts[0];
+        String lastName = nameParts.length > 1 ? nameParts[1] : "";
+        
+        // Create request body for backend
+        java.util.Map<String, Object> googleAuthData = new java.util.HashMap<>();
+        googleAuthData.put("googleId", googleId);
+        googleAuthData.put("email", email);
+        googleAuthData.put("firstName", firstName);
+        googleAuthData.put("lastName", lastName);
+        googleAuthData.put("profilePictureUrl", profilePictureUrl);
+        
+        // Call backend Google Auth endpoint
+        ApiClient.getApiService().googleSignIn(googleAuthData).enqueue(new retrofit2.Callback<java.util.Map<String, Object>>() {
             @Override
-            public void onSuccess(User syncedUser) {
-                Log.d(TAG, "✅ User synced to Neon database");
-                
-                // Save to local preferences
-                PreferencesManager preferences = new PreferencesManager(activity);
-                preferences.setLoggedIn(true);
-                preferences.setUserId(syncedUser.getId());
-                preferences.setUserRole(syncedUser.getRole());
-                preferences.setFirstName(syncedUser.getFirstName());
-                preferences.setEmail(syncedUser.getEmail());
-                
-                callback.onSuccess(syncedUser);
+            public void onResponse(retrofit2.Call<java.util.Map<String, Object>> call, retrofit2.Response<java.util.Map<String, Object>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "✅ User synced to Neon database via Google Auth");
+                    
+                    // Save to local preferences
+                    PreferencesManager preferences = new PreferencesManager(activity);
+                    preferences.setLoggedIn(true);
+                    preferences.setFirstName(firstName);
+                    preferences.setLastName(lastName);
+                    preferences.saveGoogleAccountInfo(email, firstName + " " + lastName, profilePictureUrl);
+                    
+                    // Create user object for callback
+                    User user = new User();
+                    user.setUsername(email);
+                    user.setEmail(email);
+                    user.setFirstName(firstName);
+                    user.setProfilePhotoUri(profilePictureUrl);
+                    user.setRole("user");
+                    
+                    callback.onSuccess(user);
+                } else {
+                    Log.e(TAG, "❌ Backend sync failed: " + response.code());
+                    callback.onError("Backend sync failed: " + response.code());
+                }
             }
             
             @Override
-            public void onError(String error) {
-                Log.e(TAG, "❌ User sync failed: " + error);
-                callback.onError("User sync failed: " + error);
+            public void onFailure(retrofit2.Call<java.util.Map<String, Object>> call, Throwable t) {
+                Log.e(TAG, "❌ Network error: " + t.getMessage());
+                callback.onError("Network error: " + t.getMessage());
             }
         });
-        */
-        
-        // For now, save locally
-        PreferencesManager preferences = new PreferencesManager(activity);
-        preferences.setLoggedIn(true);
-        preferences.setFirstName(firebaseUser.getDisplayName() != null ? firebaseUser.getDisplayName() : "");
-        
-        callback.onSuccess(user);
     }
     
     // ✅ SIGN OUT
