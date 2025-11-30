@@ -7,6 +7,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.example.blottermanagementsystem.services.NeonSyncService;
 import com.example.blottermanagementsystem.utils.PreferencesManager;
 
 /**
@@ -23,6 +24,7 @@ public class FirebaseAuthManager {
     private static final String TAG = "FirebaseAuthManager";
     private FirebaseAuth firebaseAuth;
     private PreferencesManager preferencesManager;
+    private NeonSyncService neonSyncService;
     private Context context;
     
     // Callback interface for auth results
@@ -36,6 +38,7 @@ public class FirebaseAuthManager {
         this.context = context;
         this.preferencesManager = preferencesManager;
         this.firebaseAuth = FirebaseAuth.getInstance();
+        this.neonSyncService = new NeonSyncService(preferencesManager);
     }
     
     /**
@@ -247,15 +250,26 @@ public class FirebaseAuthManager {
         try {
             Log.d(TAG, "🚀 Syncing Firebase user to Neon backend");
             
-            // TODO: Implement actual sync to Neon backend
-            // POST to /api/auth/firebase-sync with:
-            // - firebaseUid: user.getUid()
-            // - email: user.getEmail()
-            // - displayName: user.getDisplayName()
-            // - photoUrl: user.getPhotoUrl()
-            // - firebaseToken: firebaseToken
-            
-            Log.d(TAG, "✅ Firebase user sync to Neon queued");
+            // Call NeonSyncService to sync user to Neon
+            neonSyncService.syncFirebaseUserToNeon(user, firebaseToken, 
+                new NeonSyncService.SyncCallback() {
+                    @Override
+                    public void onSyncSuccess(String userId, String role) {
+                        Log.d(TAG, "✅ Firebase user synced to Neon successfully");
+                        Log.d(TAG, "✅ User ID: " + userId + ", Role: " + role);
+                    }
+                    
+                    @Override
+                    public void onSyncError(String errorMessage) {
+                        Log.e(TAG, "⚠️ Neon sync error (offline mode): " + errorMessage);
+                        Log.d(TAG, "✅ Using cached Firebase data for offline support");
+                    }
+                    
+                    @Override
+                    public void onSyncing() {
+                        Log.d(TAG, "🔄 Syncing to Neon...");
+                    }
+                });
         } catch (Exception e) {
             Log.e(TAG, "❌ Error syncing to Neon: " + e.getMessage());
         }
