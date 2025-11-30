@@ -433,34 +433,16 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
                 return;
             }
             
-            // Save name to preferences
+            // ✅ PURE ONLINE MODE: Save name to preferences only
             preferencesManager.setFirstName(firstName);
             preferencesManager.setLastName(lastName);
-            
-            // Skip profile picture selection - use default
             preferencesManager.setHasSelectedPfp(false);
+            preferencesManager.setHasSelectedProfilePicture(true);
             
-            // Update database with name
-            int userId = preferencesManager.getUserId();
-            if (userId != -1) {
-                Executors.newSingleThreadExecutor().execute(() -> {
-                    com.example.blottermanagementsystem.data.database.BlotterDatabase database = 
-                        com.example.blottermanagementsystem.data.database.BlotterDatabase.getDatabase(this);
-                    com.example.blottermanagementsystem.data.entity.User user = database.userDao().getUserById(userId);
-                    
-                    if (user != null) {
-                        user.setFirstName(firstName);
-                        user.setLastName(lastName);
-                        user.setProfileCompleted(true);
-                        database.userDao().updateUser(user);
-                        android.util.Log.d("ProfilePictureSelection", "✅ Updated user in database (skip): " + firstName + " " + lastName);
-                    }
-                    
-                    runOnUiThread(() -> navigateToDashboard());
-                });
-            } else {
-                navigateToDashboard();
-            }
+            android.util.Log.d("ProfilePictureSelection", "✅ Pure online mode - skipped profile picture");
+            
+            // Navigate immediately (no database update needed)
+            navigateToDashboard();
         });
         
         btnContinue.setOnClickListener(v -> {
@@ -563,83 +545,19 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
             
             preferencesManager.setHasSelectedProfilePicture(true);
             
-            // Update user in database (MUST complete before navigation)
-            int userIdTemp = preferencesManager.getUserId();
+            // ✅ PURE ONLINE MODE: No local database saves
+            // User data is already saved to Neon via Cloudinary upload callback
+            // Just navigate to dashboard
             
-            // If userId is -1, try to get it from Intent
-            if (userIdTemp == -1) {
-                int userIdFromIntent = getIntent().getIntExtra("USER_ID", -1);
-                if (userIdFromIntent != -1) {
-                    android.util.Log.d("ProfilePictureSelection", "⚠️ userId was -1, restoring from Intent: " + userIdFromIntent);
-                    userIdTemp = userIdFromIntent;
-                    preferencesManager.setUserId(userIdTemp);
-                }
-            }
+            android.util.Log.d("ProfilePictureSelection", "✅ Pure online mode - skipping local database update");
+            android.util.Log.d("ProfilePictureSelection", "✅ User data already synced to Neon");
             
-            final int userId = userIdTemp; // Make it final for lambda
+            // Update PreferencesManager with final name
+            preferencesManager.setFirstName(firstName);
+            preferencesManager.setLastName(lastName);
+            preferencesManager.setHasSelectedProfilePicture(true);
             
-            android.util.Log.d("ProfilePictureSelection", "🔍 Checking userId: " + userId);
-            android.util.Log.d("ProfilePictureSelection", "🔍 selectedImageUri: " + (selectedImageUri != null ? selectedImageUri.toString() : "NULL"));
-            
-            if (userId != -1) {
-                android.util.Log.d("ProfilePictureSelection", "✅ Starting database update thread...");
-                Executors.newSingleThreadExecutor().execute(() -> {
-                    com.example.blottermanagementsystem.data.database.BlotterDatabase database = 
-                        com.example.blottermanagementsystem.data.database.BlotterDatabase.getDatabase(this);
-                    com.example.blottermanagementsystem.data.entity.User user = database.userDao().getUserById(userId);
-                    
-                    android.util.Log.d("ProfilePictureSelection", "=== DATABASE UPDATE ===");
-                    android.util.Log.d("ProfilePictureSelection", "UserID: " + userId);
-                    android.util.Log.d("ProfilePictureSelection", "User found: " + (user != null));
-                    
-                    if (user != null) {
-                        user.setFirstName(firstName);
-                        user.setLastName(lastName);
-                        
-                        // Save profile picture URI to database
-                        if (selectedImageUri != null) {
-                            String uriString = selectedImageUri.toString();
-                            user.setProfilePhotoUri(uriString);
-                            android.util.Log.d("ProfilePictureSelection", "✅ Setting profile URI in database: " + uriString);
-                        } else {
-                            android.util.Log.w("ProfilePictureSelection", "⚠️ selectedImageUri is NULL - not saving to database");
-                        }
-                        
-                        // Mark profile as completed
-                        user.setProfileCompleted(true);
-                        android.util.Log.d("ProfilePictureSelection", "✅ Marking profile as completed");
-                        
-                        database.userDao().updateUser(user);
-                        android.util.Log.d("ProfilePictureSelection", "✅ Updated user in database: " + firstName + " " + lastName);
-                        
-                        // Update PreferencesManager AFTER database update
-                        preferencesManager.setFirstName(firstName);
-                        preferencesManager.setLastName(lastName);
-                        android.util.Log.d("ProfilePictureSelection", "✅ Updated preferences with name");
-                        
-                        
-                        // Verify the update
-                        com.example.blottermanagementsystem.data.entity.User verifyUser = database.userDao().getUserById(userId);
-                        if (verifyUser != null) {
-                            android.util.Log.d("ProfilePictureSelection", "✅ VERIFY: FirstName = " + verifyUser.getFirstName());
-                            android.util.Log.d("ProfilePictureSelection", "✅ VERIFY: LastName = " + verifyUser.getLastName());
-                            android.util.Log.d("ProfilePictureSelection", "✅ VERIFY: ProfilePhotoUri = " + verifyUser.getProfilePhotoUri());
-                            android.util.Log.d("ProfilePictureSelection", "✅ VERIFY: ProfileCompleted = " + verifyUser.isProfileCompleted());
-                        } else {
-                            android.util.Log.e("ProfilePictureSelection", "❌ VERIFY FAILED: Could not reload user from database!");
-                        }
-                        
-                        // Navigate AFTER database update
-                        runOnUiThread(() -> navigateToDashboard());
-                    } else {
-                        android.util.Log.e("ProfilePictureSelection", "❌ User not found in database!");
-                        runOnUiThread(() -> navigateToDashboard());
-                    }
-                });
-                return; // Don't navigate yet - wait for database update
-            }
-            
-            // If userId is -1, navigate immediately (shouldn't happen but fallback)
+            // Navigate to dashboard
             navigateToDashboard();
         } catch (Exception e) {
             android.util.Log.e("ProfilePictureSelection", "❌ Error in continueToNextStep: " + e.getMessage());
