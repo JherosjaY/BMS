@@ -632,4 +632,42 @@ public class LoginActivity extends BaseActivity {
         return "user";
     }
     
+    /**
+     * 🎯 NAVIGATE TO DASHBOARD
+     * Routes user to appropriate dashboard based on role
+     */
+    private void navigateToDashboard(String role) {
+        try {
+            Intent intent;
+            
+            if (role == null) {
+                role = preferencesManager.getUserRole();
+            }
+            
+            android.util.Log.d("LoginActivity", "🎯 Navigating to dashboard - Role: " + role);
+            
+            switch (role != null ? role.toLowerCase() : "user") {
+                case "admin":
+                    intent = new Intent(this, AdminDashboardActivity.class);
+                    android.util.Log.d("LoginActivity", "✅ Redirecting to AdminDashboardActivity");
+                    break;
+                case "officer":
+                    intent = new Intent(this, OfficerDashboardActivity.class);
+                    android.util.Log.d("LoginActivity", "✅ Redirecting to OfficerDashboardActivity");
+                    break;
+                default:
+                    intent = new Intent(this, UserDashboardActivity.class);
+                    android.util.Log.d("LoginActivity", "✅ Redirecting to UserDashboardActivity");
+                    break;
+            }
+            
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        } catch (Exception e) {
+            android.util.Log.e("LoginActivity", "❌ Error navigating to dashboard: " + e.getMessage());
+            Toast.makeText(this, "Error navigating to dashboard", Toast.LENGTH_SHORT).show();
+        }
+    }
+    
 }
