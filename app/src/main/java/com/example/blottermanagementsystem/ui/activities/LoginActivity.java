@@ -186,13 +186,34 @@ public class LoginActivity extends BaseActivity {
             } else {
                 // ✅ No ID token - just use the Google account info
                 android.util.Log.d("LoginActivity", "⚠️ No ID token - using basic Google Sign-In");
-                Toast.makeText(this, "✅ Google account selected: " + email, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "✅ Signed in with Google!", Toast.LENGTH_SHORT).show();
                 
-                // 🔥 CRITICAL: Save user to local database so UserDashboardActivity can find them
+                // 🔥 CRITICAL: Save user to local database so other activities can find them
                 saveGoogleUserToDatabase(email, firstName, lastName, googleId);
                 
-                // Navigate to dashboard
-                navigateToDashboard("user");
+                // Save Google account info to preferences
+                preferencesManager.saveGoogleAccountInfo(email, displayName, photoUrl);
+                preferencesManager.setFirstName(firstName);
+                preferencesManager.setLastName(lastName);
+                
+                // 🎯 PROPER FLOW: Check if first-time user
+                // If first time: Go to ProfilePictureSelectionActivity
+                // If returning: Go directly to UserDashboard
+                boolean isFirstTimeUser = preferencesManager.isFirstTimeUser();
+                android.util.Log.d("LoginActivity", "📋 Is first time user? " + isFirstTimeUser);
+                
+                if (isFirstTimeUser) {
+                    // First time: Go to ProfilePictureSelectionActivity
+                    android.util.Log.d("LoginActivity", "🎯 First time user - redirecting to ProfilePictureSelectionActivity");
+                    Intent intent = new Intent(this, ProfilePictureSelectionActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    // Returning user: Go directly to dashboard
+                    android.util.Log.d("LoginActivity", "🎯 Returning user - redirecting to UserDashboard");
+                    navigateToDashboard("user");
+                }
             }
             
         } catch (ApiException e) {
@@ -748,6 +769,10 @@ public class LoginActivity extends BaseActivity {
                     preferencesManager.setFirstName(firstName);
                     preferencesManager.setLastName(lastName);
                     preferencesManager.setEmail(email);
+                    
+                    // 🔥 NEW USER: Set isFirstTimeUser = true for profile picture selection
+                    preferencesManager.setFirstTimeUser(true);
+                    android.util.Log.d("LoginActivity", "✅ Set isFirstTimeUser = true for new Google user");
                     
                     android.util.Log.d("LoginActivity", "✅ User ID saved to preferences: " + userId);
                 } catch (Exception e) {
