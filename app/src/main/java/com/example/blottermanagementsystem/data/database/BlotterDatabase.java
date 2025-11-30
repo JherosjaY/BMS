@@ -1,12 +1,22 @@
 package com.example.blottermanagementsystem.data.database;
 
 import android.content.Context;
+import android.util.Log;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import com.example.blottermanagementsystem.data.dao.*;
 import com.example.blottermanagementsystem.data.entity.*;
 
+/**
+ * 🚀 PURE NEON ONLINE-ONLY MODE
+ * 
+ * BlotterDatabase is now a STUB/NO-OP implementation
+ * All data operations go directly to Neon via REST API
+ * Local SQLite is DISABLED for simplified debugging
+ * 
+ * Once Neon works perfectly, we'll add offline support back
+ */
 @Database(
     entities = {
         User.class, BlotterReport.class, Suspect.class, Witness.class, Evidence.class,
@@ -52,30 +62,22 @@ public abstract class BlotterDatabase extends RoomDatabase {
     
     private static volatile BlotterDatabase INSTANCE;
     
+    /**
+     * 🚀 STUB IMPLEMENTATION - PURE NEON MODE
+     * Returns null - all data comes from Neon via REST API
+     * Local SQLite is completely disabled
+     */
     public static BlotterDatabase getDatabase(final Context context) {
-        if (INSTANCE == null) {
-            synchronized (BlotterDatabase.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
-                            BlotterDatabase.class, "blotter_database")
-                            .fallbackToDestructiveMigration()
-                            .addCallback(new Callback() {
-                                @Override
-                                public void onCreate(androidx.sqlite.db.SupportSQLiteDatabase db) {
-                                    super.onCreate(db);
-                                    new Thread(() -> populateDatabase(context)).start();
-                                }
-                            })
-                            .build();
-                }
-            }
-        }
-        return INSTANCE;
+        Log.d("BlotterDatabase", "⚠️ PURE NEON MODE: Local SQLite is DISABLED");
+        Log.d("BlotterDatabase", "✅ All data operations use Neon REST API");
+        return null; // ✅ NO local database in pure Neon mode
     }
     
+    /**
+     * 🚀 STUB - NOT USED IN PURE NEON MODE
+     */
     private static void populateDatabase(Context context) {
-        BlotterDatabase db = getDatabase(context);
-        StatusDao statusDao = db.statusDao();
+        Log.d("BlotterDatabase", "⚠️ populateDatabase() called but DISABLED in pure Neon mode");
         
         statusDao.insertStatus(new Status("Pending"));
         statusDao.insertStatus(new Status("Under Investigation"));
