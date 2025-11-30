@@ -18,7 +18,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.blottermanagementsystem.R;
-import com.example.blottermanagementsystem.data.database.BlotterDatabase;
+// ❌ REMOVED: import com.example.blottermanagementsystem.data.database.BlotterDatabase; (Pure online mode)
 import com.example.blottermanagementsystem.data.entity.BlotterReport;
 import com.example.blottermanagementsystem.data.entity.User;
 import com.example.blottermanagementsystem.ui.adapters.ReportAdapter;
@@ -51,7 +51,7 @@ public class UserDashboardActivity extends BaseActivity {
     private RecyclerView recyclerReports;
     private ReportAdapter adapter;
     private List<BlotterReport> reportsList = new ArrayList<>();
-    private BlotterDatabase database;
+    // ❌ REMOVED: private BlotterDatabase database; (Pure online mode - no local cache)
     private ImageView ivUserProfile;
     private CardView ivProfilePic;
     private TextView tvNotificationBadge;
@@ -63,14 +63,13 @@ public class UserDashboardActivity extends BaseActivity {
         setContentView(R.layout.activity_user_dashboard);
         
         preferencesManager = new PreferencesManager(this);
-        database = BlotterDatabase.getDatabase(this);
+        // ❌ REMOVED: database = BlotterDatabase.getDatabase(this); (Pure online mode)
         initViews();
         setupRecyclerView();
         setupListeners();
         loadData();
         
-        // Start periodic refresh for real-time dashboard updates
-        startPeriodicRefresh();
+        // ❌ REMOVED: startPeriodicRefresh(); (Pure online - load on demand)
         
         // Show tutorial for first-time users (per-user, not per-device)
         checkAndShowTutorial();
