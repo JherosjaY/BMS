@@ -206,6 +206,10 @@ public class LoginActivity extends BaseActivity {
                     // First time: Go to ProfilePictureSelectionActivity
                     android.util.Log.d("LoginActivity", "🎯 First time user - redirecting to ProfilePictureSelectionActivity");
                     Intent intent = new Intent(this, ProfilePictureSelectionActivity.class);
+                    intent.putExtra("firstName", firstName);
+                    intent.putExtra("lastName", lastName);
+                    intent.putExtra("isGoogleSignIn", true);
+                    intent.putExtra("isFirstTimeUser", true);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
                     finish();
@@ -255,6 +259,10 @@ public class LoginActivity extends BaseActivity {
                         
                         // Navigate to Profile Picture Selection
                         Intent intent = new Intent(LoginActivity.this, com.example.blottermanagementsystem.ui.activities.ProfilePictureSelectionActivity.class);
+                        intent.putExtra("firstName", firstName);
+                        intent.putExtra("lastName", lastName);
+                        intent.putExtra("isGoogleSignIn", true);
+                        intent.putExtra("isFirstTimeUser", true);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
                         finish();
