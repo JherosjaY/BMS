@@ -615,6 +615,19 @@ public class PreferencesManager {
         prefs.edit().putString(KEY_EMAIL, email).commit();
     }
     
+    // ==================== First Time User ====================
+    
+    private static final String KEY_IS_FIRST_TIME_USER = "is_first_time_user";
+    
+    public boolean isFirstTimeUser() {
+        return prefs.getBoolean(KEY_IS_FIRST_TIME_USER, true); // Default: true (first time)
+    }
+    
+    public void setFirstTimeUser(boolean value) {
+        prefs.edit().putBoolean(KEY_IS_FIRST_TIME_USER, value).commit();
+        android.util.Log.d("PreferencesManager", "✅ isFirstTimeUser set to: " + value);
+    }
+    
     // ==================== Clear All User Data ====================
     
     public void clearUserData() {

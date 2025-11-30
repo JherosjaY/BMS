@@ -298,21 +298,25 @@ public class FirebaseAuthManager {
     /**
      * 🎯 REDIRECT TO PROFILE PICTURE SELECTION
      * Used after Google Sign-In (auto-filled name)
+     * Passes isFirstTimeUser flag for tooltips/onboarding
      */
     private void redirectToProfilePictureSelection(String userId, String firstName, 
                                                    String lastName, boolean isGoogleSignIn) {
         try {
+            boolean isFirstTimeUser = preferencesManager.isFirstTimeUser();
+            
             android.content.Intent intent = new android.content.Intent(context, 
                 com.example.blottermanagementsystem.ui.activities.ProfilePictureSelectionActivity.class);
             intent.putExtra("userId", userId);
             intent.putExtra("firstName", firstName);
             intent.putExtra("lastName", lastName);
             intent.putExtra("isGoogleSignIn", isGoogleSignIn); // true = auto-filled, false = empty
+            intent.putExtra("isFirstTimeUser", isFirstTimeUser); // true = show tooltips, false = skip
             intent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | 
                 android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
             context.startActivity(intent);
             
-            Log.d(TAG, "✅ Redirected to ProfilePictureSelectionActivity");
+            Log.d(TAG, "✅ Redirected to ProfilePictureSelectionActivity (isFirstTimeUser: " + isFirstTimeUser + ")");
         } catch (Exception e) {
             Log.e(TAG, "❌ Error redirecting to PFP selection: " + e.getMessage());
         }
