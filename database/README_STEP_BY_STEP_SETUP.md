@@ -73,17 +73,6 @@ If you have existing tables and want to start completely fresh:
 - ✅ `case_involvement` table (person's involvement in cases)
 - ✅ `person_risk_levels` table (risk assessment)
 
-**How to run:**
-1. Open Neon Console → SQL Editor
-2. Copy & paste entire `BMS_STEP_3_PERSON_HISTORY_TABLES.sql`
-3. Execute
-4. Verify: Should see 4 tables created
-
-**Tables created**: 4
-**Total so far**: 10 tables
-
----
-
 ### STEP 4: CREATE CASE MANAGEMENT TABLES
 
 **File**: `BMS_STEP_4_CASE_MANAGEMENT_TABLES.sql`
@@ -102,13 +91,58 @@ If you have existing tables and want to start completely fresh:
 4. Verify: Should see 5 tables created
 
 **Tables created**: 5
-**Total so far**: 15 tables ✅
+**Total so far**: 15 tables
+
+---
+
+### STEP 5: CREATE ADDITIONAL TABLES (Part 1)
+
+**File**: `BMS_STEP_5_ADDITIONAL_TABLES.sql`
+
+**What it creates:**
+- ✅ `activity_logs` table (system activity tracking)
+- ✅ `admin_sms_logs` table (SMS sent by admins)
+- ✅ `blotter_reports` table (police blotter reports)
+- ✅ `case_evidence` table (evidence management)
+- ✅ `fcm_tokens` table (Firebase Cloud Messaging tokens)
+- ✅ `sms_notifications` table (SMS notifications)
+
+**How to run:**
+1. Open Neon Console → SQL Editor
+2. Copy & paste entire `BMS_STEP_5_ADDITIONAL_TABLES.sql`
+3. Execute
+4. Verify: Should see 6 tables created
+
+**Tables created**: 6
+**Total so far**: 21 tables
+
+---
+
+### STEP 6: CREATE FINAL TABLES (Part 2)
+
+**File**: `BMS_STEP_6_FINAL_TABLES.sql`
+
+**What it creates:**
+- ✅ `suspects` table (suspect information)
+- ✅ `witnesses` table (witness information)
+- ✅ `user_activities` table (detailed user activity tracking)
+- ✅ `user_fcm_tokens` table (user-specific FCM tokens)
+- ✅ `user_sessions` table (session management)
+
+**How to run:**
+1. Open Neon Console → SQL Editor
+2. Copy & paste entire `BMS_STEP_6_FINAL_TABLES.sql`
+3. Execute
+4. Verify: Should see 5 tables created
+
+**Tables created**: 5
+**Total so far**: 26 tables ✅
 
 ---
 
 ## 📊 FINAL VERIFICATION
 
-After all 4 steps, run this query to verify all tables:
+After all 6 steps, run this query to verify all tables:
 
 ```sql
 SELECT 
@@ -121,7 +155,7 @@ WHERE schemaname NOT IN ('pg_catalog', 'information_schema')
 ORDER BY tablename;
 ```
 
-**Expected output**: 15 tables
+**Expected output**: 26 tables
 
 ---
 
@@ -150,6 +184,21 @@ ORDER BY tablename;
 14. `case_admin_notes` - Admin notes
 15. `case_user_updates` - User updates
 
+### Additional Tables (6 tables)
+16. `activity_logs` - System activity tracking
+17. `admin_sms_logs` - SMS sent by admins
+18. `blotter_reports` - Police blotter reports
+19. `case_evidence` - Evidence management
+20. `fcm_tokens` - Firebase Cloud Messaging tokens
+21. `sms_notifications` - SMS notifications
+
+### Final Tables (5 tables)
+22. `suspects` - Suspect information
+23. `witnesses` - Witness information
+24. `user_activities` - Detailed user activity tracking
+25. `user_fcm_tokens` - User-specific FCM tokens
+26. `user_sessions` - Session management
+
 ---
 
 ## 🔐 ADMIN ACCOUNT (Pre-created in STEP 1)
@@ -167,12 +216,13 @@ Use this to login and test the app!
 
 ## ✅ WHAT'S INCLUDED
 
-✅ **15 Complete Tables** - All core functionality
-✅ **30+ Indexes** - Performance optimized
+✅ **26 Complete Tables** - All functionality
+✅ **50+ Indexes** - Performance optimized
 ✅ **Foreign Keys** - Data integrity
 ✅ **Constraints** - Data validation
 ✅ **Admin Account** - Pre-created for testing
 ✅ **Step-by-step** - Easy to follow
+✅ **6 SQL Scripts** - Organized setup
 
 ---
 
