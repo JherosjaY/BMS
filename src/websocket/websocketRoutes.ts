@@ -5,7 +5,6 @@
  */
 
 import { Elysia, t } from "elysia";
-import { ws } from "@elysiajs/ws";
 import { realtimeManager } from "./RealtimeManager";
 import { firebaseSync } from "../firebase/FirebaseSync";
 import { v4 as uuidv4 } from "crypto";
@@ -20,9 +19,6 @@ interface WebSocketMessage {
 
 export const websocketRoutes = new Elysia({ prefix: "/ws" })
   // WebSocket endpoint for real-time updates
-  .use(
-    ws()
-  )
   .ws("/realtime", {
     open(ws) {
       const clientId = uuidv4();
