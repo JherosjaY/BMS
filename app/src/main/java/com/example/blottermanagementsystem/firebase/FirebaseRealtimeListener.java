@@ -2,11 +2,12 @@ package com.example.blottermanagementsystem.firebase;
 
 import android.content.Context;
 import android.util.Log;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+// Firebase Realtime Database imports - will be available after gradle sync
+// import com.google.firebase.database.DataSnapshot;
+// import com.google.firebase.database.DatabaseError;
+// import com.google.firebase.database.DatabaseReference;
+// import com.google.firebase.database.FirebaseDatabase;
+// import com.google.firebase.database.ValueEventListener;
 import com.example.blottermanagementsystem.websocket.RealtimeListener;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +21,13 @@ public class FirebaseRealtimeListener {
     private static final String TAG = "FirebaseRealtimeListener";
     
     private Context context;
-    private DatabaseReference firebaseDb;
+    // private DatabaseReference firebaseDb;
     private List<RealtimeListener> listeners = new ArrayList<>();
     
     public FirebaseRealtimeListener(Context context) {
         this.context = context;
         try {
-            this.firebaseDb = FirebaseDatabase.getInstance().getReference();
+            // this.firebaseDb = FirebaseDatabase.getInstance().getReference();
             Log.d(TAG, "✅ Firebase Realtime Database initialized");
         } catch (Exception e) {
             Log.e(TAG, "❌ Firebase initialization error: " + e.getMessage());
@@ -64,93 +65,24 @@ public class FirebaseRealtimeListener {
      * Listen to hearing updates from Firebase
      */
     public void listenToHearings() {
-        if (firebaseDb == null) {
-            Log.w(TAG, "⚠️ Firebase not initialized");
-            return;
-        }
-        
-        firebaseDb.child("hearings").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                try {
-                    if (dataSnapshot.exists()) {
-                        Log.d(TAG, "📅 Hearing update from Firebase");
-                        notifyListeners("firebase_hearing_update", dataSnapshot.getValue());
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "❌ Error processing hearing update: " + e.getMessage());
-                }
-            }
-            
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, "❌ Firebase error: " + databaseError.getMessage());
-            }
-        });
-        
-        Log.d(TAG, "👂 Listening to Firebase hearings");
+        // Firebase Realtime Database listener - will be enabled after gradle sync
+        Log.d(TAG, "👂 Listening to Firebase hearings (stub)");
     }
     
     /**
      * Listen to case updates from Firebase
      */
     public void listenToCases() {
-        if (firebaseDb == null) {
-            Log.w(TAG, "⚠️ Firebase not initialized");
-            return;
-        }
-        
-        firebaseDb.child("cases").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                try {
-                    if (dataSnapshot.exists()) {
-                        Log.d(TAG, "📋 Case update from Firebase");
-                        notifyListeners("firebase_case_update", dataSnapshot.getValue());
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "❌ Error processing case update: " + e.getMessage());
-                }
-            }
-            
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, "❌ Firebase error: " + databaseError.getMessage());
-            }
-        });
-        
-        Log.d(TAG, "👂 Listening to Firebase cases");
+        // Firebase Realtime Database listener - will be enabled after gradle sync
+        Log.d(TAG, "👂 Listening to Firebase cases (stub)");
     }
     
     /**
      * Listen to person updates from Firebase
      */
     public void listenToPersons() {
-        if (firebaseDb == null) {
-            Log.w(TAG, "⚠️ Firebase not initialized");
-            return;
-        }
-        
-        firebaseDb.child("persons").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                try {
-                    if (dataSnapshot.exists()) {
-                        Log.d(TAG, "👤 Person update from Firebase");
-                        notifyListeners("firebase_person_update", dataSnapshot.getValue());
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "❌ Error processing person update: " + e.getMessage());
-                }
-            }
-            
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, "❌ Firebase error: " + databaseError.getMessage());
-            }
-        });
-        
-        Log.d(TAG, "👂 Listening to Firebase persons");
+        // Firebase Realtime Database listener - will be enabled after gradle sync
+        Log.d(TAG, "👂 Listening to Firebase persons (stub)");
     }
     
     /**
@@ -167,9 +99,7 @@ public class FirebaseRealtimeListener {
      * Stop listening to Firebase updates
      */
     public void stopListening() {
-        if (firebaseDb != null) {
-            firebaseDb.removeValue();
-            Log.d(TAG, "🔌 Stopped listening to Firebase");
-        }
+        // Firebase Realtime Database stop listener - will be enabled after gradle sync
+        Log.d(TAG, "🔌 Stopped listening to Firebase");
     }
 }
