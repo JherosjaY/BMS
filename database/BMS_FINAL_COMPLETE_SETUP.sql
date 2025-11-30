@@ -802,7 +802,7 @@ VALUES (
     'admin-' || to_char(now(), 'YYYYMMDDHHmmss'),
     'bms.official.admin', 
     '$2b$10$K8wjZTF5B8u6H7Jq6m9nE.9qQZ5rY8VWq0dK8cX6vL5dR2rS5tOa',
-    'bms.admin@bms.gov', 
+    'official.bms.2025@gmail.com', 
     'Admin', 
     'System', 
     'Administrator', 
