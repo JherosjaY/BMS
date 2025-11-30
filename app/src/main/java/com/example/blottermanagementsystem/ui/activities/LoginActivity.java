@@ -89,16 +89,21 @@ public class LoginActivity extends BaseActivity {
                 result -> {
                     android.util.Log.d("LoginActivity", "🔔 Activity Result Launcher called!");
                     android.util.Log.d("LoginActivity", "📊 Result Code: " + result.getResultCode());
-                    android.util.Log.d("LoginActivity", "📊 RESULT_OK value: " + RESULT_OK);
                     android.util.Log.d("LoginActivity", "📊 Data: " + (result.getData() != null ? "✅ Present" : "❌ NULL"));
                     
-                    if (result.getResultCode() == RESULT_OK) {
-                        android.util.Log.d("LoginActivity", "✅ Result code is RESULT_OK");
-                        Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
-                        android.util.Log.d("LoginActivity", "✅ Got task from intent");
-                        handleGoogleSignInResult(task);
+                    // ✅ IMPORTANT: Google Sign-In can return RESULT_CANCELED (0) but still have valid data
+                    // We need to check the intent data directly, not just the result code
+                    if (result.getData() != null) {
+                        android.util.Log.d("LoginActivity", "✅ Intent data is present - processing Google Sign-In");
+                        try {
+                            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                            android.util.Log.d("LoginActivity", "✅ Got task from intent");
+                            handleGoogleSignInResult(task);
+                        } catch (Exception e) {
+                            android.util.Log.e("LoginActivity", "❌ Error getting task from intent: " + e.getMessage());
+                        }
                     } else {
-                        android.util.Log.e("LoginActivity", "❌ Result code is NOT RESULT_OK: " + result.getResultCode());
+                        android.util.Log.e("LoginActivity", "❌ No intent data - Google Sign-In cancelled or failed");
                     }
                 });
     }
