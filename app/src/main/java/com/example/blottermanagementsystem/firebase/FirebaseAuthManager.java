@@ -206,6 +206,10 @@ public class FirebaseAuthManager {
         } catch (Exception e) {
             Log.e(TAG, "❌ Exception during Registration: " + e.getMessage());
             if (callback != null) {
+                callback.onError(e.getMessage());
+            }
+        }
+    }
     
     // ❌ REMOVED: syncToNeonBackend() method (Pure online mode - sync handled in LoginActivity)
     
