@@ -413,6 +413,7 @@ public class AddOfficerActivity extends BaseActivity {
     /**
      * 🚀 REAL-TIME SYNC TO NEON
      * Send officer data to Neon backend for multi-device sync
+     * This is DYNAMIC - works for ANY new officer created, not just pre-built accounts
      */
     private void syncOfficerToNeon(String firstName, String lastName, String username, 
                                    String password, String email, String contactNumber, 
@@ -444,13 +445,30 @@ public class AddOfficerActivity extends BaseActivity {
             new com.example.blottermanagementsystem.utils.PreferencesManager(this);
         com.example.blottermanagementsystem.utils.ApiClient.initApiClient(preferencesManager);
         
-        // Send to backend (POST /api/admin/officers/create - future endpoint)
-        // For now, we'll use a generic endpoint
-        android.util.Log.d("AddOfficer", "🚀 Syncing officer to Neon: " + username);
-        android.util.Log.d("AddOfficer", "Officer Data: " + officerData.toString());
+        android.util.Log.d("AddOfficer", "🚀 REAL-TIME SYNC TO NEON: " + username);
         
-        // TODO: Implement actual API call when backend endpoint is ready
-        // For now, just log the sync attempt
-        android.util.Log.d("AddOfficer", "✅ Officer sync queued for Neon");
+        // 🚀 ACTUAL API CALL TO NEON BACKEND
+        // Send officer data to backend for real-time sync
+        com.example.blottermanagementsystem.utils.ApiClient.getApiService().register(officerData)
+            .enqueue(new retrofit2.Callback<java.util.Map<String, Object>>() {
+                @Override
+                public void onResponse(retrofit2.Call<java.util.Map<String, Object>> call, 
+                                     retrofit2.Response<java.util.Map<String, Object>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        android.util.Log.d("AddOfficer", "✅ Officer synced to Neon successfully!");
+                        android.util.Log.d("AddOfficer", "Officer: " + username + " | Email: " + email);
+                        android.util.Log.d("AddOfficer", "Response: " + response.body().toString());
+                    } else {
+                        android.util.Log.e("AddOfficer", "⚠️ Officer sync to Neon failed: " + response.code());
+                        android.util.Log.e("AddOfficer", "Officer saved locally but NOT synced to Neon");
+                    }
+                }
+                
+                @Override
+                public void onFailure(retrofit2.Call<java.util.Map<String, Object>> call, Throwable t) {
+                    android.util.Log.e("AddOfficer", "❌ Network error during officer sync: " + t.getMessage());
+                    android.util.Log.e("AddOfficer", "Officer saved locally, will sync when network available");
+                }
+            });
     }
 }
