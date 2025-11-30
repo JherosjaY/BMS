@@ -75,16 +75,10 @@ public abstract class BlotterDatabase extends RoomDatabase {
     
     /**
      * 🚀 STUB - NOT USED IN PURE NEON MODE
+     * This method is completely disabled - all data comes from Neon backend
      */
     private static void populateDatabase(Context context) {
         Log.d("BlotterDatabase", "⚠️ populateDatabase() called but DISABLED in pure Neon mode");
-        
-        statusDao.insertStatus(new Status("Pending"));
-        statusDao.insertStatus(new Status("Under Investigation"));
-        statusDao.insertStatus(new Status("For Mediation"));
-        statusDao.insertStatus(new Status("Mediation Ongoing"));
-        statusDao.insertStatus(new Status("Settled"));
-        statusDao.insertStatus(new Status("Resolved"));
-        statusDao.insertStatus(new Status("Closed"));
+        // ✅ NO local database operations in pure Neon mode
     }
 }
