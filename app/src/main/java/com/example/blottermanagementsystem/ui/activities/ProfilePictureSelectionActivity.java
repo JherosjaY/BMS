@@ -602,7 +602,10 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
             
             // If userId is -1, navigate immediately (shouldn't happen but fallback)
             navigateToDashboard();
-        });
+        } catch (Exception e) {
+            android.util.Log.e("ProfilePictureSelection", "❌ Error in continueToNextStep: " + e.getMessage());
+            navigateToDashboard();
+        }
     }
     
     private void navigateToDashboard() {
