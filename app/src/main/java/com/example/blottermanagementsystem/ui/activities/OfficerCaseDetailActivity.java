@@ -41,7 +41,7 @@ import com.example.blottermanagementsystem.utils.NetworkMonitor;
 import com.example.blottermanagementsystem.utils.TimelineUpdateManager;
 import com.example.blottermanagementsystem.utils.GlobalLoadingManager;
 import com.example.blottermanagementsystem.utils.ConflictResolver;
-import com.example.blottermanagementsystem.utils.SyncQueueManager;
+// ❌ REMOVED: import com.example.blottermanagementsystem.utils.SyncQueueManager; (Pure online mode)
 import com.example.blottermanagementsystem.utils.EnhancedApiCallback;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;

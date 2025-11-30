@@ -13,11 +13,11 @@ import retrofit2.Response;
 public class HearingsService {
     private static final String TAG = "HearingsService";
     private Context context;
-    private SyncManager syncManager;
+    // ❌ REMOVED: private SyncManager syncManager; (Pure online mode)
 
     public HearingsService(Context context) {
         this.context = context;
-        this.syncManager = new SyncManager(context);
+        // ❌ REMOVED: this.syncManager = new SyncManager(context); (Pure online mode)
     }
 
     // SCHEDULE HEARING - HYBRID SYNC

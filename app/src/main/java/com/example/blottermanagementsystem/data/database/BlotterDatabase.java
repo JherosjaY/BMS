@@ -23,9 +23,8 @@ import com.example.blottermanagementsystem.data.entity.*;
         Hearing.class, StatusHistory.class, Resolution.class, Officer.class, InvestigationTask.class,
         Notification.class, Status.class, Person.class, Respondent.class, PersonHistory.class,
         SmsNotification.class, RespondentStatement.class, Summons.class, KPForm.class,
-        MediationSession.class, CaseTimeline.class, CaseTemplate.class, SyncQueue.class,
-        ConnectedDevice.class, LegalDocument.class, CloudinaryImage.class,
-        PendingSync.class
+        MediationSession.class, CaseTimeline.class, CaseTemplate.class,
+        ConnectedDevice.class, LegalDocument.class, CloudinaryImage.class
     },
     version = 14,
     exportSchema = false
@@ -53,12 +52,10 @@ public abstract class BlotterDatabase extends RoomDatabase {
     public abstract MediationSessionDao mediationSessionDao();
     public abstract CaseTimelineDao caseTimelineDao();
     public abstract CaseTemplateDao caseTemplateDao();
-    public abstract SyncQueueDao syncQueueDao();
     public abstract ConnectedDeviceDao connectedDeviceDao();
     public abstract LegalDocumentDao legalDocumentDao();
     public abstract InvestigationTaskDao investigationTaskDao();
     public abstract CloudinaryImageDao cloudinaryImageDao();
-    public abstract PendingSyncDao pendingSyncDao();
     
     private static volatile BlotterDatabase INSTANCE;
     

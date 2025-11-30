@@ -7,7 +7,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.example.blottermanagementsystem.services.NeonSyncService;
+// ❌ REMOVED: import com.example.blottermanagementsystem.services.NeonSyncService; (Pure online mode)
 import com.example.blottermanagementsystem.utils.PreferencesManager;
 
 /**
@@ -24,7 +24,7 @@ public class FirebaseAuthManager {
     private static final String TAG = "FirebaseAuthManager";
     private FirebaseAuth firebaseAuth;
     private PreferencesManager preferencesManager;
-    private NeonSyncService neonSyncService;
+    // ❌ REMOVED: private NeonSyncService neonSyncService; (Pure online mode)
     private Context context;
     
     // Callback interface for auth results
@@ -38,7 +38,7 @@ public class FirebaseAuthManager {
         this.context = context;
         this.preferencesManager = preferencesManager;
         this.firebaseAuth = FirebaseAuth.getInstance();
-        this.neonSyncService = new NeonSyncService(preferencesManager);
+        // ❌ REMOVED: this.neonSyncService = new NeonSyncService(preferencesManager); (Pure online mode)
     }
     
     /**

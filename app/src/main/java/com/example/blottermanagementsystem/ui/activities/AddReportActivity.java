@@ -33,7 +33,7 @@ import com.example.blottermanagementsystem.utils.PhoneNumberValidator;
 import com.example.blottermanagementsystem.utils.PreferencesManager;
 import com.example.blottermanagementsystem.utils.ApiClient;
 import com.example.blottermanagementsystem.utils.NetworkMonitor;
-import com.example.blottermanagementsystem.utils.SyncQueueManager;
+// ❌ REMOVED: import com.example.blottermanagementsystem.utils.SyncQueueManager; (Pure online mode)
 import androidx.cardview.widget.CardView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;

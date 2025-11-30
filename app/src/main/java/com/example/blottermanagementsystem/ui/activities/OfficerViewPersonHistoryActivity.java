@@ -13,7 +13,7 @@ import com.example.blottermanagementsystem.R;
 import com.example.blottermanagementsystem.data.database.BlotterDatabase;
 import com.example.blottermanagementsystem.data.entity.PersonHistory;
 import com.example.blottermanagementsystem.services.PersonHistoryService;
-import com.example.blottermanagementsystem.services.SyncManager;
+// ❌ REMOVED: import com.example.blottermanagementsystem.services.SyncManager; (Pure online mode)
 import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class OfficerViewPersonHistoryActivity extends BaseActivity {
     
     private BlotterDatabase database;
     private PersonHistoryService personHistoryService;
-    private SyncManager syncManager;
+    // ❌ REMOVED: private SyncManager syncManager; (Pure online mode)
     private int personId;
     private String personName;
     private List<PersonHistory> allHistory = new ArrayList<>();
