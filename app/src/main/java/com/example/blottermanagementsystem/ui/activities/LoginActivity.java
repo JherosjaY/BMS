@@ -117,43 +117,12 @@ public class LoginActivity extends BaseActivity {
             // Save Google account info
             preferencesManager.saveGoogleAccountInfo(email, displayName, photoUrl);
             
-            // Check if user exists in database
-            java.util.concurrent.Executors.newSingleThreadExecutor().execute(() -> {
-                com.example.blottermanagementsystem.data.database.BlotterDatabase database = 
-                    com.example.blottermanagementsystem.data.database.BlotterDatabase.getDatabase(this);
-                com.example.blottermanagementsystem.data.entity.User existingUser = 
-                    database.userDao().getUserByUsername(username);
-                
-                runOnUiThread(() -> {
-                    if (existingUser != null) {
-                        // User exists - LOGIN
-                        android.util.Log.d("LoginActivity", "Google user exists, logging in: " + email);
-                        
-                        // SECURITY: Google Sign-In users are ALWAYS "User" role (never Admin/Officer)
-                        // This prevents privilege escalation through Google accounts
-                        
-                        // Save user data to preferences
-                        preferencesManager.setUserId(existingUser.getId());
-                        preferencesManager.setLoggedIn(true);
-                        preferencesManager.setUserRole("User"); // FORCE User role for security
-                        preferencesManager.setFirstName(existingUser.getFirstName());
-                        preferencesManager.setLastName(existingUser.getLastName());
-                        
-                        // Navigate to Dashboard
-                        Intent intent = new Intent(LoginActivity.this, com.example.blottermanagementsystem.ui.activities.UserDashboardActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        finish();
-                        
-                    } else {
-                        // User doesn't exist - REGISTER via Backend API
-                        android.util.Log.d("LoginActivity", "Google user doesn't exist, creating new user via backend: " + username);
-                        
-                        // ✅ Call backend API to register Google user
-                        registerGoogleUserViaBackend(googleId, email, firstName, lastName, photoUrl);
-                    }
-                });
-            });
+            // 🚀 PURE NEON MODE: Skip local database check, go straight to backend
+            // In pure Neon mode, all user data comes from backend API
+            android.util.Log.d("LoginActivity", "🚀 Pure Neon mode: Registering/logging in Google user via backend");
+            
+            // ✅ Call backend API to register or login Google user
+            registerGoogleUserViaBackend(googleId, email, firstName, lastName, photoUrl);
             
         } catch (ApiException e) {
             Toast.makeText(this, "Google Sign-In failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
