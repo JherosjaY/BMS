@@ -72,10 +72,13 @@ public class LoginActivity extends BaseActivity {
     
     private void setupGoogleSignIn() {
         // Configure Google Sign-In
+        // 🔥 Get the server client ID from google-services.json
+        String serverClientId = "YOUR_SERVER_CLIENT_ID_HERE"; // TODO: Replace with your server client ID from google-services.json
+        
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .requestProfile()
-                .requestIdToken(getString(R.string.default_web_client_id)) // 🔥 REQUIRED for Firebase
+                .requestIdToken(serverClientId) // 🔥 REQUIRED for Firebase
                 .build();
         
         googleSignInClient = GoogleSignIn.getClient(this, gso);
