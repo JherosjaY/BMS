@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.cloudinary.android.MediaManager;
-import com.cloudinary.android.callback.ErrorCallback;
 import com.cloudinary.android.callback.UploadCallback;
 
 import java.io.File;
@@ -35,7 +34,7 @@ public class CloudinaryManager {
     private static final String CLOUDINARY_UPLOAD_PRESET = "your_preset";  // TODO: Replace with your preset
     
     // Callback interface for upload results
-    public interface UploadCallback {
+    public interface CloudinaryUploadCallback {
         void onUploadSuccess(String cloudinaryUrl);
         void onUploadError(String errorMessage);
         void onUploading();
@@ -68,7 +67,7 @@ public class CloudinaryManager {
      * ☁️ UPLOAD PROFILE PICTURE
      * Uploads image to Cloudinary and returns URL
      */
-    public void uploadProfilePicture(Uri imageUri, String userId, UploadCallback callback) {
+    public void uploadProfilePicture(Uri imageUri, String userId, CloudinaryUploadCallback callback) {
         if (callback != null) callback.onUploading();
         
         Log.d(TAG, "☁️ Uploading profile picture to Cloudinary for userId: " + userId);

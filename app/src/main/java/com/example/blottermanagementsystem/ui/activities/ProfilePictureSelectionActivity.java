@@ -453,7 +453,7 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
                 
                 // Upload to Cloudinary
                 cloudinaryManager.uploadProfilePicture(selectedImageUri, userIdFromIntent, 
-                    new com.example.blottermanagementsystem.utils.CloudinaryManager.UploadCallback() {
+                    new com.example.blottermanagementsystem.utils.CloudinaryManager.CloudinaryUploadCallback() {
                         @Override
                         public void onUploadSuccess(String cloudinaryUrl) {
                             android.util.Log.d("ProfilePictureSelection", "✅ Cloudinary upload successful!");
