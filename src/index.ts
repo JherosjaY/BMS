@@ -3,7 +3,6 @@ import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { bearer } from "@elysiajs/bearer";
 import { jwt } from "@elysiajs/jwt";
-import { ws } from "@elysiajs/ws";
 import { db } from "./db";
 import { websocketRoutes } from "./websocket/websocketRoutes";
 
@@ -52,7 +51,6 @@ export const app = new Elysia()
       secret: process.env.JWT_SECRET || "your-secret-key-change-in-production",
     })
   )
-  .use(ws())
   .use(
     swagger({
       path: "/swagger",
