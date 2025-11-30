@@ -12,7 +12,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.blottermanagementsystem.R;
-import com.example.blottermanagementsystem.services.PersonHistoryService;
+// ❌ REMOVED: import com.example.blottermanagementsystem.services.PersonHistoryService; (Pure online mode)
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
@@ -29,7 +29,7 @@ public class PersonHistoryActivity extends BaseActivity {
     private RecyclerView rvCriminalRecords, rvCaseInvolvements;
     private Button btnAddRecord, btnCreateProfile, btnSearchAgain;
 
-    private PersonHistoryService personService;
+    // ❌ REMOVED: private PersonHistoryService personService; (Pure online mode)
     private String currentUserRole;
     private String currentUserId;
     private String currentPersonId;
@@ -39,7 +39,7 @@ public class PersonHistoryActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_person_history);
 
-        personService = new PersonHistoryService(this);
+        // ❌ REMOVED: personService = new PersonHistoryService(this); (Pure online mode)
         currentUserRole = getSharedPreferences("UserSession", MODE_PRIVATE).getString("role", "User");
         currentUserId = getSharedPreferences("UserSession", MODE_PRIVATE).getString("userId", "");
 

@@ -8,7 +8,7 @@ import android.widget.CheckBox;
 import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 import com.example.blottermanagementsystem.R;
-import com.example.blottermanagementsystem.services.HearingsService;
+// ❌ REMOVED: import com.example.blottermanagementsystem.services.HearingsService; (Pure online mode)
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import java.text.SimpleDateFormat;
@@ -23,7 +23,7 @@ public class ScheduleHearingActivity extends BaseActivity {
     private CheckBox cbNotifyComplainant, cbNotifyRespondent, cbNotifyOfficer;
     private MaterialButton btnSchedule, btnCancel;
 
-    private HearingsService hearingsService;
+    // ❌ REMOVED: private HearingsService hearingsService; (Pure online mode)
     private String currentUserId;
     private Calendar selectedDate;
     private Calendar selectedTime;
@@ -33,7 +33,7 @@ public class ScheduleHearingActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_schedule_hearing);
 
-        hearingsService = new HearingsService(this);
+        // ❌ REMOVED: hearingsService = new HearingsService(this); (Pure online mode)
         currentUserId = getSharedPreferences("UserSession", MODE_PRIVATE).getString("userId", "");
         selectedDate = Calendar.getInstance();
         selectedTime = Calendar.getInstance();

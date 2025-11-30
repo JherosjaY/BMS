@@ -11,7 +11,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.blottermanagementsystem.R;
-import com.example.blottermanagementsystem.services.HearingsService;
+// ❌ REMOVED: import com.example.blottermanagementsystem.services.HearingsService; (Pure online mode)
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import java.text.SimpleDateFormat;
@@ -30,7 +30,7 @@ public class HearingsCalendarActivity extends BaseActivity {
     private MaterialButton btnPrevMonth, btnNextMonth, btnScheduleHearing;
     private MaterialCardView cardCalendar;
 
-    private HearingsService hearingsService;
+    // ❌ REMOVED: private HearingsService hearingsService; (Pure online mode)
     private Calendar currentCalendar;
     private String currentUserRole;
 
@@ -39,7 +39,7 @@ public class HearingsCalendarActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hearings_calendar);
 
-        hearingsService = new HearingsService(this);
+        // ❌ REMOVED: hearingsService = new HearingsService(this); (Pure online mode)
         currentUserRole = getSharedPreferences("UserSession", MODE_PRIVATE).getString("role", "User");
         currentCalendar = Calendar.getInstance();
 

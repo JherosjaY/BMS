@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.blottermanagementsystem.R;
 import com.example.blottermanagementsystem.data.database.BlotterDatabase;
 import com.example.blottermanagementsystem.data.entity.PersonHistory;
-import com.example.blottermanagementsystem.services.PersonHistoryService;
+// ❌ REMOVED: import com.example.blottermanagementsystem.services.PersonHistoryService; (Pure online mode)
 // ❌ REMOVED: import com.example.blottermanagementsystem.services.SyncManager; (Pure online mode)
 import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -36,7 +36,7 @@ public class OfficerViewPersonHistoryActivity extends BaseActivity {
     private FloatingActionButton fabAddRecord, fabSync;
     
     private BlotterDatabase database;
-    private PersonHistoryService personHistoryService;
+    // ❌ REMOVED: private PersonHistoryService personHistoryService; (Pure online mode)
     // ❌ REMOVED: private SyncManager syncManager; (Pure online mode)
     private int personId;
     private String personName;
