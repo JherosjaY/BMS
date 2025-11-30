@@ -49,6 +49,9 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
     private String firstNameFromIntent = "";
     private String lastNameFromIntent = "";
     
+    // ☁️ NEW: Cloudinary integration for profile picture upload
+    private com.example.blottermanagementsystem.utils.CloudinaryManager cloudinaryManager;
+    
     // Stepper UI elements
     private androidx.cardview.widget.CardView step1Circle, step2Circle;
     private TextView step1Text, step2Text, step1Label, step2Label;
@@ -311,6 +314,10 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
         step2Label = findViewById(R.id.step2Label);
         timelineLine = findViewById(R.id.timelineLine);
         
+        // ☁️ NEW: Initialize Cloudinary Manager
+        cloudinaryManager = new com.example.blottermanagementsystem.utils.CloudinaryManager(this, preferencesManager);
+        android.util.Log.d("ProfilePictureSelection", "✅ Cloudinary Manager initialized");
+        
         // Pre-fill from Google if available
         if (preferencesManager.isGoogleAccount()) {
             String displayName = preferencesManager.getGoogleDisplayName();
@@ -436,7 +443,61 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
             preferencesManager.setLastName(lastName);
             android.util.Log.d("ProfilePictureSelection", "✅ Saved name: " + firstName + " " + lastName);
             
-            // Save profile picture URI if selected
+            // ☁️ NEW: Upload profile picture to Cloudinary if selected
+            if (selectedImageUri != null) {
+                android.util.Log.d("ProfilePictureSelection", "☁️ Uploading profile picture to Cloudinary...");
+                
+                // Show loading
+                btnContinue.setEnabled(false);
+                btnContinue.setText("Uploading...");
+                
+                // Upload to Cloudinary
+                cloudinaryManager.uploadProfilePicture(selectedImageUri, userIdFromIntent, 
+                    new com.example.blottermanagementsystem.utils.CloudinaryManager.UploadCallback() {
+                        @Override
+                        public void onUploadSuccess(String cloudinaryUrl) {
+                            android.util.Log.d("ProfilePictureSelection", "✅ Cloudinary upload successful!");
+                            android.util.Log.d("ProfilePictureSelection", "✅ URL: " + cloudinaryUrl);
+                            
+                            // Save Cloudinary URL to preferences
+                            preferencesManager.setProfileImageUri(cloudinaryUrl);
+                            preferencesManager.setHasSelectedProfilePicture(true);
+                            
+                            // Continue to dashboard
+                            continueToNextStep();
+                        }
+                        
+                        @Override
+                        public void onUploadError(String errorMessage) {
+                            android.util.Log.e("ProfilePictureSelection", "❌ Cloudinary upload failed: " + errorMessage);
+                            Toast.makeText(ProfilePictureSelectionActivity.this, 
+                                "Failed to upload picture: " + errorMessage, Toast.LENGTH_SHORT).show();
+                            
+                            // Re-enable button
+                            btnContinue.setEnabled(true);
+                            btnContinue.setText("Continue");
+                        }
+                        
+                        @Override
+                        public void onUploading() {
+                            android.util.Log.d("ProfilePictureSelection", "🔄 Uploading to Cloudinary...");
+                        }
+                    });
+                return; // Wait for upload to complete
+            }
+            
+            // If no image selected, continue without uploading
+            continueToNextStep();
+        });
+    }
+    
+    /**
+     * ☁️ CONTINUE TO NEXT STEP
+     * Called after Cloudinary upload completes
+     */
+    private void continueToNextStep() {
+        try {
+            // Save profile picture URI if selected (already done in Cloudinary callback)
             if (selectedImageUri != null) {
                 // Only try to grant persistent permission for non-FileProvider URIs
                 // FileProvider URIs are already in our app's storage and don't need persistent permissions
