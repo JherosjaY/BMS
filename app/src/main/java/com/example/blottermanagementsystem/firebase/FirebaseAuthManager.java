@@ -176,11 +176,7 @@ public class FirebaseAuthManager {
                                         if (tokenTask.isSuccessful()) {
                                             String firebaseToken = tokenTask.getResult().getToken();
                                             
-                                            // Cache user data locally
-                                            cacheUserLocally(user, firebaseToken);
-                                            
-                                            // Sync to Neon backend
-                                            syncToNeonBackend(user, firebaseToken);
+                                            // ❌ REMOVED: Local caching and sync (Pure online mode)
                                             
                                             if (callback != null) {
                                                 callback.onSuccess(user, firebaseToken);
