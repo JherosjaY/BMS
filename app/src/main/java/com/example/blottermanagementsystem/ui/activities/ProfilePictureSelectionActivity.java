@@ -42,6 +42,12 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
     private com.google.android.material.textfield.TextInputEditText etFirstName, etLastName;
     private PreferencesManager preferencesManager;
     
+    // 🎯 NEW: Handle both Google Sign-In and Email Sign-Up flows
+    private boolean isGoogleSignIn = false;
+    private String userIdFromIntent = "";
+    private String firstNameFromIntent = "";
+    private String lastNameFromIntent = "";
+    
     // Stepper UI elements
     private androidx.cardview.widget.CardView step1Circle, step2Circle;
     private TextView step1Text, step2Text, step1Label, step2Label;
@@ -63,26 +69,40 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
         
         preferencesManager = new PreferencesManager(this);
         
-        // Debug: Check userId immediately
-        int userId = preferencesManager.getUserId();
-        int userIdFromIntent = getIntent().getIntExtra("USER_ID", -1);
+        // 🎯 NEW: Read intent extras for both Google Sign-In and Email Sign-Up flows
+        Intent intent = getIntent();
+        userIdFromIntent = intent.getStringExtra("userId");
+        firstNameFromIntent = intent.getStringExtra("firstName");
+        lastNameFromIntent = intent.getStringExtra("lastName");
+        isGoogleSignIn = intent.getBooleanExtra("isGoogleSignIn", false);
         
         android.util.Log.d("ProfilePictureSelection", "=== ONCREATE ===");
-        android.util.Log.d("ProfilePictureSelection", "UserId from PreferencesManager: " + userId);
-        android.util.Log.d("ProfilePictureSelection", "UserId from Intent: " + userIdFromIntent);
-        android.util.Log.d("ProfilePictureSelection", "Is logged in: " + preferencesManager.isLoggedIn());
-        android.util.Log.d("ProfilePictureSelection", "User role: " + preferencesManager.getUserRole());
-        
-        // If PreferencesManager has -1 but Intent has valid userId, save it
-        if (userId == -1 && userIdFromIntent != -1) {
-            android.util.Log.d("ProfilePictureSelection", "⚠️ PreferencesManager lost userId! Restoring from Intent: " + userIdFromIntent);
-            preferencesManager.setUserId(userIdFromIntent);
-            preferencesManager.setLoggedIn(true);
-        }
+        android.util.Log.d("ProfilePictureSelection", "🎯 isGoogleSignIn: " + isGoogleSignIn);
+        android.util.Log.d("ProfilePictureSelection", "🎯 userId: " + userIdFromIntent);
+        android.util.Log.d("ProfilePictureSelection", "🎯 firstName: " + firstNameFromIntent);
+        android.util.Log.d("ProfilePictureSelection", "🎯 lastName: " + lastNameFromIntent);
         
         setupLaunchers();
         initViews();
-        loadGoogleProfilePicture();
+        
+        // 🎯 NEW: Auto-fill name fields based on flow
+        if (isGoogleSignIn) {
+            // Google Sign-In: Auto-fill name fields
+            android.util.Log.d("ProfilePictureSelection", "✅ Google Sign-In: Auto-filling name fields");
+            etFirstName.setText(firstNameFromIntent);
+            etLastName.setText(lastNameFromIntent);
+            etFirstName.setEnabled(false); // Disable editing for Google
+            etLastName.setEnabled(false);
+            loadGoogleProfilePicture();
+        } else {
+            // Email Sign-Up: Leave name fields empty
+            android.util.Log.d("ProfilePictureSelection", "✅ Email Sign-Up: Name fields empty for user input");
+            etFirstName.setText("");
+            etLastName.setText("");
+            etFirstName.setEnabled(true); // Enable editing for Email
+            etLastName.setEnabled(true);
+        }
+        
         setupListeners();
     }
     
@@ -374,6 +394,11 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
                 Toast.makeText(this, "Please enter your first and last name", Toast.LENGTH_SHORT).show();
                 return;
             }
+            
+            // 🎯 NEW: Save first name and last name to preferences
+            preferencesManager.setFirstName(firstName);
+            preferencesManager.setLastName(lastName);
+            android.util.Log.d("ProfilePictureSelection", "✅ Saved name: " + firstName + " " + lastName);
             
             // Save profile picture URI if selected
             if (selectedImageUri != null) {
