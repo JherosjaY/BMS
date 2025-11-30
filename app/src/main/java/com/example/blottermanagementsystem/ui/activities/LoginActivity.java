@@ -87,9 +87,18 @@ public class LoginActivity extends BaseActivity {
         googleSignInLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
+                    android.util.Log.d("LoginActivity", "🔔 Activity Result Launcher called!");
+                    android.util.Log.d("LoginActivity", "📊 Result Code: " + result.getResultCode());
+                    android.util.Log.d("LoginActivity", "📊 RESULT_OK value: " + RESULT_OK);
+                    android.util.Log.d("LoginActivity", "📊 Data: " + (result.getData() != null ? "✅ Present" : "❌ NULL"));
+                    
                     if (result.getResultCode() == RESULT_OK) {
+                        android.util.Log.d("LoginActivity", "✅ Result code is RESULT_OK");
                         Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                        android.util.Log.d("LoginActivity", "✅ Got task from intent");
                         handleGoogleSignInResult(task);
+                    } else {
+                        android.util.Log.e("LoginActivity", "❌ Result code is NOT RESULT_OK: " + result.getResultCode());
                     }
                 });
     }
