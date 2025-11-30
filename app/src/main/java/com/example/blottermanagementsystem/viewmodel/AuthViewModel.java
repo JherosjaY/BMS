@@ -10,6 +10,24 @@ import com.example.blottermanagementsystem.data.entity.User;
 import com.example.blottermanagementsystem.utils.PreferencesManager;
 import java.util.concurrent.Executors;
 
+/**
+ * AuthViewModel - Handles authentication with fallback to local SQLite
+ * 
+ * ARCHITECTURE:
+ * - Primary: Neon PostgreSQL (via LoginActivity/RegisterActivity API calls)
+ * - Fallback: Local SQLite (via this ViewModel) for offline mode
+ * 
+ * FLOW:
+ * 1. LoginActivity calls backend API (Neon)
+ * 2. If network fails, LoginActivity calls AuthViewModel.login() (local SQLite)
+ * 3. RegisterActivity calls backend API (Neon)
+ * 4. If network fails, RegisterActivity calls AuthViewModel.register() (local SQLite)
+ * 
+ * JWT TOKEN:
+ * - Stored in PreferencesManager after successful Neon login
+ * - Automatically added to all API requests via JWT interceptor
+ * - Cleared on logout
+ */
 public class AuthViewModel extends AndroidViewModel {
     private final BlotterDatabase database;
     private final PreferencesManager preferencesManager;
@@ -37,11 +55,20 @@ public class AuthViewModel extends AndroidViewModel {
         this.loginCallback = callback;
     }
     
+    /**
+     * Login with local SQLite (offline fallback)
+     * 
+     * Called by LoginActivity when:
+     * - Network is unavailable, OR
+     * - Backend API fails
+     * 
+     * For online login with Neon, see LoginActivity.loginWithBackendAPI()
+     */
     public void login(String username, String password) {
         authState.setValue(AuthState.LOADING);
         
         Executors.newSingleThreadExecutor().execute(() -> {
-            android.util.Log.d("AuthViewModel", "=== LOGIN ATTEMPT ===");
+            android.util.Log.d("AuthViewModel", "=== LOCAL LOGIN ATTEMPT (OFFLINE FALLBACK) ===");
             android.util.Log.d("AuthViewModel", "Username: " + username);
             
             // Check total users in database
@@ -132,10 +159,21 @@ public class AuthViewModel extends AndroidViewModel {
         });
     }
     
+    /**
+     * Register user with local SQLite (offline fallback)
+     * 
+     * Called by RegisterActivity when:
+     * - Network is unavailable, OR
+     * - Backend API fails
+     * 
+     * For online registration with Neon, see RegisterActivity.registerWithBackendAPI()
+     */
     public void register(User user) {
         registerState.setValue(AuthState.LOADING);
         
         Executors.newSingleThreadExecutor().execute(() -> {
+            android.util.Log.d("AuthViewModel", "=== LOCAL REGISTRATION (OFFLINE FALLBACK) ===");
+            
             // Check if username already exists
             User existingUserByUsername = database.userDao().getUserByUsername(user.getUsername());
             
