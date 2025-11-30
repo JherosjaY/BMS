@@ -188,8 +188,10 @@ public class LoginActivity extends BaseActivity {
                 android.util.Log.d("LoginActivity", "⚠️ No ID token - using basic Google Sign-In");
                 Toast.makeText(this, "✅ Google account selected: " + email, Toast.LENGTH_SHORT).show();
                 
-                // For now, just navigate to dashboard
-                // In production, you'd want to sync this to Firebase/Neon
+                // 🔥 CRITICAL: Save user to local database so UserDashboardActivity can find them
+                saveGoogleUserToDatabase(email, firstName, lastName, googleId);
+                
+                // Navigate to dashboard
                 navigateToDashboard("user");
             }
             
@@ -708,6 +710,54 @@ public class LoginActivity extends BaseActivity {
         } catch (Exception e) {
             android.util.Log.e("LoginActivity", "❌ Error navigating to dashboard: " + e.getMessage());
             Toast.makeText(this, "Error navigating to dashboard", Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    /**
+     * 🔥 SAVE GOOGLE USER TO LOCAL DATABASE
+     * Creates a user record in SQLite so UserDashboardActivity can find them
+     */
+    private void saveGoogleUserToDatabase(String email, String firstName, String lastName, String googleId) {
+        try {
+            android.util.Log.d("LoginActivity", "💾 Saving Google user to local database...");
+            
+            // Get database instance
+            com.example.blottermanagementsystem.data.database.BlotterDatabase database = 
+                com.example.blottermanagementsystem.data.database.BlotterDatabase.getDatabase(this);
+            
+            // Create user object
+            com.example.blottermanagementsystem.data.entity.User user = new com.example.blottermanagementsystem.data.entity.User();
+            user.setUsername(email.split("@")[0]); // Use email prefix as username
+            user.setEmail(email);
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setRole("user");
+            user.setGoogleId(googleId);
+            user.setCreatedAt(System.currentTimeMillis());
+            
+            // Save to database on background thread
+            java.util.concurrent.Executors.newSingleThreadExecutor().execute(() -> {
+                try {
+                    long userId = database.userDao().insertUser(user);
+                    android.util.Log.d("LoginActivity", "✅ User saved to database with ID: " + userId);
+                    
+                    // Save user ID to preferences
+                    preferencesManager.setUserId((int) userId);
+                    preferencesManager.setLoggedIn(true);
+                    preferencesManager.setUserRole("user");
+                    preferencesManager.setFirstName(firstName);
+                    preferencesManager.setLastName(lastName);
+                    preferencesManager.setEmail(email);
+                    
+                    android.util.Log.d("LoginActivity", "✅ User ID saved to preferences: " + userId);
+                } catch (Exception e) {
+                    android.util.Log.e("LoginActivity", "❌ Error saving user to database: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            });
+        } catch (Exception e) {
+            android.util.Log.e("LoginActivity", "❌ Error in saveGoogleUserToDatabase: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
