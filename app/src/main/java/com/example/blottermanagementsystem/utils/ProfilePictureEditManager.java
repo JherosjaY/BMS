@@ -44,11 +44,23 @@ public class ProfilePictureEditManager {
     /**
      * 📸 UPDATE PROFILE PICTURE
      * Upload new picture and update in Neon
+     * Role-based: Only USER role can edit
      */
     public void updateProfilePicture(Uri imageUri, String userId, EditCallback callback) {
         if (callback != null) callback.onUploading();
         
         Log.d(TAG, "📸 Updating profile picture for userId: " + userId);
+        
+        // 🎯 ROLE-BASED CHECK: Only USER can edit profile picture
+        String userRole = preferencesManager.getUserRole();
+        if (userRole != null && !userRole.toLowerCase().equals("user")) {
+            String errorMessage = "❌ Only USER role can edit profile picture. Your role: " + userRole;
+            Log.e(TAG, errorMessage);
+            if (callback != null) {
+                callback.onUpdateError(errorMessage);
+            }
+            return;
+        }
         
         try {
             // Upload to Cloudinary
@@ -145,5 +157,52 @@ public class ProfilePictureEditManager {
         String url = preferencesManager.getProfileImageUri();
         Log.d(TAG, "📸 Current profile picture URL: " + (url != null ? "✅" : "❌"));
         return url;
+    }
+    
+    /**
+     * 🎯 GET ROLE-BASED PROFILE PICTURE
+     * Returns appropriate image based on user role
+     */
+    public String getRoleBasedProfilePicture(String gender) {
+        String userRole = preferencesManager.getUserRole();
+        
+        if (userRole == null) {
+            userRole = "user";
+        }
+        
+        Log.d(TAG, "🎯 Getting role-based profile picture for role: " + userRole);
+        
+        switch (userRole.toLowerCase()) {
+            case "admin":
+                // ADMIN: Hardcoded shield icon with star (⭐🛡️)
+                Log.d(TAG, "🛡️ Admin role - returning hardcoded shield icon");
+                return "ADMIN_SHIELD"; // Special marker for hardcoded icon
+                
+            case "officer":
+                // OFFICER: Dynamic gender-based icon
+                if (gender != null && gender.toLowerCase().equals("female")) {
+                    Log.d(TAG, "👮‍♀️ Officer role (Female) - returning female officer icon");
+                    return "OFFICER_FEMALE"; // Special marker for female officer
+                } else {
+                    Log.d(TAG, "👮‍♂️ Officer role (Male) - returning male officer icon");
+                    return "OFFICER_MALE"; // Special marker for male officer
+                }
+                
+            default:
+                // USER: Can have custom profile picture
+                Log.d(TAG, "📸 User role - returning custom profile picture URL");
+                return getCurrentProfilePictureUrl();
+        }
+    }
+    
+    /**
+     * 🎯 CAN USER EDIT PROFILE PICTURE
+     * Check if current user role can edit profile picture
+     */
+    public boolean canEditProfilePicture() {
+        String userRole = preferencesManager.getUserRole();
+        boolean canEdit = userRole != null && userRole.toLowerCase().equals("user");
+        Log.d(TAG, "🎯 Can edit profile picture: " + canEdit + " (Role: " + userRole + ")");
+        return canEdit;
     }
 }
