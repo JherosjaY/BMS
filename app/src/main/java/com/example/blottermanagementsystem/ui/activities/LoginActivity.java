@@ -75,6 +75,7 @@ public class LoginActivity extends BaseActivity {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .requestProfile()
+                .requestIdToken(getString(R.string.default_web_client_id)) // 🔥 REQUIRED for Firebase
                 .build();
         
         googleSignInClient = GoogleSignIn.getClient(this, gso);
