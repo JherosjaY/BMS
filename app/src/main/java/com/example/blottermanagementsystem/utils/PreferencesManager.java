@@ -32,6 +32,8 @@ public class PreferencesManager {
     private static final String KEY_GOOGLE_DISPLAY_NAME = "google_display_name";
     private static final String KEY_GOOGLE_PHOTO_URL = "google_photo_url";
     private static final String KEY_IS_GOOGLE_ACCOUNT = "is_google_account";
+    private static final String KEY_JWT_TOKEN = "jwt_token";
+    private static final String KEY_TOKEN_EXPIRY = "token_expiry";
     
     private final SharedPreferences prefs;
     
@@ -519,5 +521,63 @@ public class PreferencesManager {
             .remove(KEY_GOOGLE_PHOTO_URL)
             .remove(KEY_IS_GOOGLE_ACCOUNT)
             .apply();
+    }
+    
+    // ==================== JWT Token (Neon Authentication) ====================
+    
+    /**
+     * Save JWT token from Neon backend
+     */
+    public void setJwtToken(String token) {
+        prefs.edit().putString(KEY_JWT_TOKEN, token).apply();
+        android.util.Log.d("PreferencesManager", "✅ JWT token saved");
+    }
+    
+    /**
+     * Get JWT token for API requests
+     */
+    public String getJwtToken() {
+        return prefs.getString(KEY_JWT_TOKEN, null);
+    }
+    
+    /**
+     * Check if JWT token exists and is valid
+     */
+    public boolean hasValidJwtToken() {
+        String token = getJwtToken();
+        return token != null && !token.isEmpty();
+    }
+    
+    /**
+     * Save token expiry time
+     */
+    public void setTokenExpiry(long expiryTime) {
+        prefs.edit().putLong(KEY_TOKEN_EXPIRY, expiryTime).apply();
+    }
+    
+    /**
+     * Get token expiry time
+     */
+    public long getTokenExpiry() {
+        return prefs.getLong(KEY_TOKEN_EXPIRY, 0);
+    }
+    
+    /**
+     * Check if token is expired
+     */
+    public boolean isTokenExpired() {
+        long expiryTime = getTokenExpiry();
+        return expiryTime > 0 && System.currentTimeMillis() > expiryTime;
+    }
+    
+    /**
+     * Clear JWT token (logout)
+     */
+    public void clearJwtToken() {
+        prefs.edit()
+            .remove(KEY_JWT_TOKEN)
+            .remove(KEY_TOKEN_EXPIRY)
+            .apply();
+        android.util.Log.d("PreferencesManager", "✅ JWT token cleared");
     }
 }

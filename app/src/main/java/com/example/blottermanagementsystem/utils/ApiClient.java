@@ -9,7 +9,9 @@ import com.google.gson.GsonBuilder;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -33,18 +35,40 @@ public class ApiClient {
     
     private static Retrofit retrofit;
     private static ApiService apiService;
+    private static PreferencesManager preferencesManager;
     
     /**
      * Initialize Retrofit with Elysia backend
      */
-    public static void initApiClient() {
+    public static void initApiClient(PreferencesManager prefs) {
+        preferencesManager = prefs;
         try {
             // Create logging interceptor for debugging
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             
-            // Create OkHttpClient with interceptor
+            // Create JWT interceptor to add token to all requests
+            Interceptor jwtInterceptor = chain -> {
+                Request originalRequest = chain.request();
+                
+                // Add JWT token if available
+                if (preferencesManager != null && preferencesManager.hasValidJwtToken()) {
+                    String token = preferencesManager.getJwtToken();
+                    Request.Builder requestBuilder = originalRequest.newBuilder()
+                            .header("Authorization", "Bearer " + token)
+                            .header("Content-Type", "application/json");
+                    
+                    Request newRequest = requestBuilder.build();
+                    Log.d(TAG, "✅ JWT token added to request");
+                    return chain.proceed(newRequest);
+                }
+                
+                return chain.proceed(originalRequest);
+            };
+            
+            // Create OkHttpClient with interceptors
             OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                    .addInterceptor(jwtInterceptor)
                     .addInterceptor(loggingInterceptor)
                     .connectTimeout(30, TimeUnit.SECONDS)
                     .readTimeout(30, TimeUnit.SECONDS)
