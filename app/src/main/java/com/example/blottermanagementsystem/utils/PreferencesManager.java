@@ -584,4 +584,51 @@ public class PreferencesManager {
             .apply();
         android.util.Log.d("PreferencesManager", "✅ JWT token cleared");
     }
+    
+    // ==================== Firebase Token ====================
+    
+    private static final String KEY_FIREBASE_TOKEN = "firebase_token";
+    
+    public String getFirebaseToken() {
+        return prefs.getString(KEY_FIREBASE_TOKEN, null);
+    }
+    
+    public void setFirebaseToken(String token) {
+        prefs.edit().putString(KEY_FIREBASE_TOKEN, token).commit();
+        android.util.Log.d("PreferencesManager", "✅ Firebase token saved");
+    }
+    
+    public void clearFirebaseToken() {
+        prefs.edit().remove(KEY_FIREBASE_TOKEN).apply();
+        android.util.Log.d("PreferencesManager", "✅ Firebase token cleared");
+    }
+    
+    // ==================== Email ====================
+    
+    private static final String KEY_EMAIL = "email";
+    
+    public String getEmail() {
+        return prefs.getString(KEY_EMAIL, null);
+    }
+    
+    public void setEmail(String email) {
+        prefs.edit().putString(KEY_EMAIL, email).commit();
+    }
+    
+    // ==================== Clear All User Data ====================
+    
+    public void clearUserData() {
+        prefs.edit()
+            .remove(KEY_USER_ID)
+            .remove(KEY_USERNAME)
+            .remove(KEY_USER_ROLE)
+            .remove(KEY_FIRST_NAME)
+            .remove(KEY_LAST_NAME)
+            .remove(KEY_EMAIL)
+            .remove(KEY_FIREBASE_TOKEN)
+            .remove(KEY_JWT_TOKEN)
+            .remove(KEY_TOKEN_EXPIRY)
+            .apply();
+        android.util.Log.d("PreferencesManager", "✅ All user data cleared");
+    }
 }

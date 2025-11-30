@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.blottermanagementsystem.R;
 import com.example.blottermanagementsystem.data.entity.User;
+import com.example.blottermanagementsystem.firebase.FirebaseAuthManager;
 import com.example.blottermanagementsystem.utils.PreferencesManager;
 import com.example.blottermanagementsystem.viewmodel.AuthViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -36,6 +37,7 @@ public class LoginActivity extends BaseActivity {
     private ProgressBar progressBar;
     private AuthViewModel authViewModel;
     private PreferencesManager preferencesManager;
+    private FirebaseAuthManager firebaseAuthManager;
     
     private GoogleSignInClient googleSignInClient;
     private ActivityResultLauncher<Intent> googleSignInLauncher;
@@ -62,6 +64,7 @@ public class LoginActivity extends BaseActivity {
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
         progressBar = findViewById(R.id.progressBar);
         preferencesManager = new PreferencesManager(this);
+        firebaseAuthManager = new FirebaseAuthManager(this, preferencesManager);
     }
     
     private void setupGoogleSignIn() {
@@ -117,12 +120,39 @@ public class LoginActivity extends BaseActivity {
             // Save Google account info
             preferencesManager.saveGoogleAccountInfo(email, displayName, photoUrl);
             
-            // 🚀 PURE NEON MODE: Skip local database check, go straight to backend
-            // In pure Neon mode, all user data comes from backend API
-            android.util.Log.d("LoginActivity", "🚀 Pure Neon mode: Registering/logging in Google user via backend");
+            // 🔥 FIREBASE AUTH: Use Firebase for authentication
+            // Works online AND offline with local caching
+            android.util.Log.d("LoginActivity", "🔥 Firebase Auth: Signing in with Google");
             
-            // ✅ Call backend API to register or login Google user
-            registerGoogleUserViaBackend(googleId, email, firstName, lastName, photoUrl);
+            // ✅ Call Firebase to authenticate Google user
+            String idToken = account.getIdToken();
+            if (idToken != null) {
+                firebaseAuthManager.googleSignIn(idToken, new FirebaseAuthManager.AuthCallback() {
+                    @Override
+                    public void onSuccess(com.google.firebase.auth.FirebaseUser user, String token) {
+                        android.util.Log.d("LoginActivity", "✅ Firebase Google Sign-In successful");
+                        Toast.makeText(LoginActivity.this, "✅ Logged in successfully!", Toast.LENGTH_SHORT).show();
+                        
+                        // Navigate to appropriate dashboard based on role
+                        String role = preferencesManager.getUserRole();
+                        navigateToDashboard(role);
+                    }
+                    
+                    @Override
+                    public void onError(String errorMessage) {
+                        android.util.Log.e("LoginActivity", "❌ Firebase Google Sign-In failed: " + errorMessage);
+                        Toast.makeText(LoginActivity.this, "❌ Sign-in failed: " + errorMessage, Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
+                    }
+                    
+                    @Override
+                    public void onLoading() {
+                        progressBar.setVisibility(View.VISIBLE);
+                    }
+                });
+            } else {
+                Toast.makeText(this, "❌ Failed to get Google ID token", Toast.LENGTH_SHORT).show();
+            }
             
         } catch (ApiException e) {
             Toast.makeText(this, "Google Sign-In failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
