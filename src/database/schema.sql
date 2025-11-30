@@ -5,8 +5,11 @@
 -- ==================== USERS TABLE ====================
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
+    username VARCHAR(255) UNIQUE,
     firebase_uid VARCHAR(255) UNIQUE,
     email VARCHAR(255) UNIQUE NOT NULL,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
     display_name VARCHAR(255),
     photo_url TEXT,
     role VARCHAR(50) DEFAULT 'User', -- Admin, Officer, User
@@ -86,6 +89,7 @@ CREATE TABLE IF NOT EXISTS activity_logs (
 
 -- ==================== INDEXES FOR PERFORMANCE ====================
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 CREATE INDEX IF NOT EXISTS idx_users_firebase_uid ON users(firebase_uid);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_blotter_reports_case_number ON blotter_reports(case_number);
