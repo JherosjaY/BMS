@@ -735,8 +735,8 @@ public class LoginActivity extends BaseActivity {
     }
     
     /**
-     * 🔥 SAVE GOOGLE USER TO LOCAL DATABASE
-     * Creates a user record in SQLite so UserDashboardActivity can find them
+     * 🔥 SAVE GOOGLE USER TO LOCAL DATABASE & SYNC TO NEON
+     * Creates a user record in SQLite and syncs to Neon backend
      */
     private void saveGoogleUserToDatabase(String email, String firstName, String lastName, String googleId) {
         try {
@@ -773,6 +773,9 @@ public class LoginActivity extends BaseActivity {
                     preferencesManager.setFirstTimeUser(true);
                     android.util.Log.d("LoginActivity", "✅ Set isFirstTimeUser = true for new Google user");
                     
+                    // 🌐 SYNC TO NEON: Send user data to backend
+                    syncGoogleUserToNeon(email, firstName, lastName, googleId);
+                    
                     android.util.Log.d("LoginActivity", "✅ User ID saved to preferences: " + userId);
                 } catch (Exception e) {
                     android.util.Log.e("LoginActivity", "❌ Error saving user to database: " + e.getMessage());
@@ -782,6 +785,48 @@ public class LoginActivity extends BaseActivity {
         } catch (Exception e) {
             android.util.Log.e("LoginActivity", "❌ Error in saveGoogleUserToDatabase: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+    
+    /**
+     * 🌐 SYNC GOOGLE USER TO NEON
+     * Send user data to backend API to create/update user in Neon
+     */
+    private void syncGoogleUserToNeon(String email, String firstName, String lastName, String googleId) {
+        try {
+            android.util.Log.d("LoginActivity", "🌐 Syncing Google user to Neon...");
+            
+            // Create request body
+            java.util.Map<String, Object> userData = new java.util.HashMap<>();
+            userData.put("email", email);
+            userData.put("firstName", firstName);
+            userData.put("lastName", lastName);
+            userData.put("username", email.split("@")[0]);
+            userData.put("role", "user");
+            
+            // Call backend API to sync user
+            com.example.blottermanagementsystem.utils.ApiClient.getApiService()
+                .syncGoogleUser(userData)
+                .enqueue(new retrofit2.Callback<java.util.Map<String, Object>>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<java.util.Map<String, Object>> call, 
+                                         retrofit2.Response<java.util.Map<String, Object>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            android.util.Log.d("LoginActivity", "✅ Google user synced to Neon successfully!");
+                        } else {
+                            android.util.Log.e("LoginActivity", "⚠️ Failed to sync to Neon: " + response.code());
+                        }
+                    }
+                    
+                    @Override
+                    public void onFailure(retrofit2.Call<java.util.Map<String, Object>> call, Throwable t) {
+                        android.util.Log.e("LoginActivity", "⚠️ Network error syncing to Neon: " + t.getMessage());
+                        // Don't fail the login - user is already saved locally
+                    }
+                });
+        } catch (Exception e) {
+            android.util.Log.e("LoginActivity", "❌ Error in syncGoogleUserToNeon: " + e.getMessage());
+            // Don't fail the login - user is already saved locally
         }
     }
     
