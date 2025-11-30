@@ -259,6 +259,9 @@ public class RegisterActivity extends BaseActivity {
         registrationData.put("firstName", "User");
         registrationData.put("lastName", "Account");
         
+        // Initialize API client with preferences
+        com.example.blottermanagementsystem.utils.ApiClient.initApiClient(preferencesManager);
+        
         // Call backend API
         com.example.blottermanagementsystem.utils.ApiClient.getApiService().register(registrationData)
             .enqueue(new retrofit2.Callback<java.util.Map<String, Object>>() {
@@ -266,18 +269,20 @@ public class RegisterActivity extends BaseActivity {
                 public void onResponse(retrofit2.Call<java.util.Map<String, Object>> call, 
                                      retrofit2.Response<java.util.Map<String, Object>> response) {
                     com.example.blottermanagementsystem.utils.GlobalLoadingManager.hide();
+                    btnRegister.setEnabled(true);
+                    btnRegister.setText("Create account");
                     
                     if (response.isSuccessful() && response.body() != null) {
                         android.util.Log.d("RegisterActivity", "✅ Backend registration successful");
                         
-                        // Save to local preferences
-                        preferencesManager.setLoggedIn(true);
-                        preferencesManager.setFirstName("User");
-                        preferencesManager.setLastName("Account");
-                        preferencesManager.setUsername(username);
+                        // ✅ PROFESSIONAL APPROACH: DO NOT auto-login
+                        // User must manually login with their credentials
+                        // This is more secure and professional
                         
                         Toast.makeText(RegisterActivity.this, "Account created successfully!", Toast.LENGTH_SHORT).show();
-                        handleRegisterSuccess();
+                        
+                        // Show credentials dialog and redirect to login
+                        handleRegisterSuccess(username, email, password);
                     } else {
                         // Handle specific error codes from backend
                         handleRegistrationError(response);
@@ -287,6 +292,8 @@ public class RegisterActivity extends BaseActivity {
                 @Override
                 public void onFailure(retrofit2.Call<java.util.Map<String, Object>> call, Throwable t) {
                     android.util.Log.e("RegisterActivity", "❌ Network error: " + t.getMessage());
+                    btnRegister.setEnabled(true);
+                    btnRegister.setText("Create account");
                     // Fallback to local registration
                     registerLocally(username, email, password);
                 }
@@ -363,16 +370,21 @@ public class RegisterActivity extends BaseActivity {
     }
     
     private void handleRegisterSuccess() {
-        // Get user details
-        String username = etUsername.getText().toString().trim();
+        // Get user details from input fields
+        String username = etUsernameField.getText().toString().trim();
+        String email = etUsername.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
-        String fullName = "New User"; // Default name since we don't have first/last name fields
         
         // Show credentials dialog
-        showCredentialsDialog(fullName, username, password);
+        showCredentialsDialog(username, email, password);
     }
     
-    private void showCredentialsDialog(String userName, String username, String password) {
+    private void handleRegisterSuccess(String username, String email, String password) {
+        // Show credentials dialog with provided credentials
+        showCredentialsDialog(username, email, password);
+    }
+    
+    private void showCredentialsDialog(String username, String email, String password) {
         try {
             // Inflate custom dialog layout
             android.view.LayoutInflater inflater = getLayoutInflater();
@@ -385,10 +397,12 @@ public class RegisterActivity extends BaseActivity {
             MaterialButton btnCopyCredentials = dialogView.findViewById(R.id.btnCopyCredentials);
             MaterialButton btnDone = dialogView.findViewById(R.id.btnDone);
             
-            // Set data
-            tvUserName.setText(userName);
+            // Set data - Show username and password for login
+            tvUserName.setText("Account Created Successfully!");
             tvUsername.setText(username);
             tvPassword.setText(password);
+            
+            android.util.Log.d("RegisterActivity", "✅ Showing credentials dialog - Username: " + username + ", Email: " + email);
             
             // Create dialog
             AlertDialog dialog = new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
@@ -398,15 +412,18 @@ public class RegisterActivity extends BaseActivity {
             
             // Set button listeners
             btnCopyCredentials.setOnClickListener(v -> {
-                // Copy both username and password
+                // Copy both username and password for easy login
                 String credentials = "Username: " + username + "\nPassword: " + password;
-                copyToClipboard("Credentials", credentials);
+                copyToClipboard("Login Credentials", credentials);
                 Toast.makeText(this, "Credentials copied to clipboard", Toast.LENGTH_SHORT).show();
             });
             
             btnDone.setOnClickListener(v -> {
                 dialog.dismiss();
-                // Navigate to Login screen
+                android.util.Log.d("RegisterActivity", "✅ User confirmed credentials - redirecting to LoginActivity");
+                
+                // ✅ PROFESSIONAL APPROACH: Redirect to LoginActivity for manual login
+                // User must enter their credentials to verify they saved them
                 Intent intent = new Intent(this, LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
@@ -416,10 +433,10 @@ public class RegisterActivity extends BaseActivity {
             // Show dialog
             dialog.show();
             
-            android.util.Log.d("Register", "Dialog shown successfully");
+            android.util.Log.d("RegisterActivity", "✅ Credentials dialog shown successfully");
         } catch (Exception e) {
-            android.util.Log.e("Register", "Error showing dialog", e);
-            // Navigate to Login screen without showing toast
+            android.util.Log.e("RegisterActivity", "❌ Error showing credentials dialog", e);
+            // Navigate to Login screen without showing dialog
             Intent intent = new Intent(this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
