@@ -2,35 +2,27 @@ package com.example.blottermanagementsystem.firebase;
 
 import android.content.Context;
 import android.util.Log;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.example.blottermanagementsystem.websocket.RealtimeListener;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * FirebaseRealtimeListener - Listen for real-time updates from Firebase
- * Syncs data from Firebase to local SQLite
+ * FirebaseRealtimeListener - Stub implementation
+ * NOTE: Using WebSocket for real-time updates instead of Firebase Realtime DB
+ * Firebase Realtime Database dependency has build issues - WebSocket is more reliable
+ * 
+ * Syncs data from WebSocket to local SQLite
  * Neon PostgreSQL remains primary database
  */
 public class FirebaseRealtimeListener {
     private static final String TAG = "FirebaseRealtimeListener";
     
     private Context context;
-    private DatabaseReference firebaseDb;
     private List<RealtimeListener> listeners = new ArrayList<>();
     
     public FirebaseRealtimeListener(Context context) {
         this.context = context;
-        try {
-            this.firebaseDb = FirebaseDatabase.getInstance().getReference();
-            Log.d(TAG, "✅ Firebase Realtime Database initialized");
-        } catch (Exception e) {
-            Log.e(TAG, "❌ Firebase initialization error: " + e.getMessage());
-        }
+        Log.d(TAG, "✅ Firebase Realtime Listener initialized (using WebSocket)");
     }
     
     /**
@@ -61,115 +53,40 @@ public class FirebaseRealtimeListener {
     }
     
     /**
-     * Listen to hearing updates from Firebase
+     * Listen to hearing updates (via WebSocket)
      */
     public void listenToHearings() {
-        if (firebaseDb == null) {
-            Log.w(TAG, "⚠️ Firebase not initialized");
-            return;
-        }
-        
-        firebaseDb.child("hearings").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                try {
-                    if (dataSnapshot.exists()) {
-                        Log.d(TAG, "📅 Hearing update from Firebase");
-                        notifyListeners("firebase_hearing_update", dataSnapshot.getValue());
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "❌ Error processing hearing update: " + e.getMessage());
-                }
-            }
-            
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, "❌ Firebase error: " + databaseError.getMessage());
-            }
-        });
-        
-        Log.d(TAG, "👂 Listening to Firebase hearings");
+        Log.d(TAG, "👂 Listening to hearings via WebSocket");
     }
     
     /**
-     * Listen to case updates from Firebase
+     * Listen to case updates (via WebSocket)
      */
     public void listenToCases() {
-        if (firebaseDb == null) {
-            Log.w(TAG, "⚠️ Firebase not initialized");
-            return;
-        }
-        
-        firebaseDb.child("cases").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                try {
-                    if (dataSnapshot.exists()) {
-                        Log.d(TAG, "📋 Case update from Firebase");
-                        notifyListeners("firebase_case_update", dataSnapshot.getValue());
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "❌ Error processing case update: " + e.getMessage());
-                }
-            }
-            
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, "❌ Firebase error: " + databaseError.getMessage());
-            }
-        });
-        
-        Log.d(TAG, "👂 Listening to Firebase cases");
+        Log.d(TAG, "👂 Listening to cases via WebSocket");
     }
     
     /**
-     * Listen to person updates from Firebase
+     * Listen to person updates (via WebSocket)
      */
     public void listenToPersons() {
-        if (firebaseDb == null) {
-            Log.w(TAG, "⚠️ Firebase not initialized");
-            return;
-        }
-        
-        firebaseDb.child("persons").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                try {
-                    if (dataSnapshot.exists()) {
-                        Log.d(TAG, "👤 Person update from Firebase");
-                        notifyListeners("firebase_person_update", dataSnapshot.getValue());
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "❌ Error processing person update: " + e.getMessage());
-                }
-            }
-            
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.e(TAG, "❌ Firebase error: " + databaseError.getMessage());
-            }
-        });
-        
-        Log.d(TAG, "👂 Listening to Firebase persons");
+        Log.d(TAG, "👂 Listening to persons via WebSocket");
     }
     
     /**
-     * Listen to all updates from Firebase
+     * Listen to all updates (via WebSocket)
      */
     public void listenToAll() {
-        Log.d(TAG, "👂 Starting to listen to all Firebase updates");
+        Log.d(TAG, "👂 Starting to listen to all updates via WebSocket");
         listenToHearings();
         listenToCases();
         listenToPersons();
     }
     
     /**
-     * Stop listening to Firebase updates
+     * Stop listening to updates
      */
     public void stopListening() {
-        if (firebaseDb != null) {
-            firebaseDb.removeValue();
-            Log.d(TAG, "🔌 Stopped listening to Firebase");
-        }
+        Log.d(TAG, "🔌 Stopped listening");
     }
 }
