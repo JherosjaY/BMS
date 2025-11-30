@@ -418,6 +418,10 @@ public class PreferencesManager {
         editor.remove(KEY_GOOGLE_PHOTO_URL);
         editor.remove(KEY_IS_GOOGLE_ACCOUNT);
         
+        // Clear JWT token on logout
+        editor.remove(KEY_JWT_TOKEN);
+        editor.remove(KEY_TOKEN_EXPIRY);
+        
         // ✅ IMPORTANT: DO NOT remove password_changed flag on logout!
         // Each officer's password_changed flag is stored per-user ID (password_changed_user_X)
         // Removing it would force password change on next login even if already changed
@@ -428,7 +432,7 @@ public class PreferencesManager {
         // This allows users to keep their profile pictures when they log back in
         editor.apply();
         
-        android.util.Log.d("PreferencesManager", "✅ Session cleared (password_changed flag preserved for each officer)");
+        android.util.Log.d("PreferencesManager", "✅ Session cleared (JWT token cleared, password_changed flag preserved for each officer)");
     }
     
     // ==================== Generic Helpers ====================

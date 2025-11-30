@@ -365,6 +365,9 @@ public class LoginActivity extends BaseActivity {
         
         showLoading(true);
         
+        // Initialize API client with preferences (for JWT interceptor)
+        com.example.blottermanagementsystem.utils.ApiClient.initApiClient(preferencesManager);
+        
         // Call backend API
         com.example.blottermanagementsystem.utils.ApiClient.getApiService().login(loginData)
             .enqueue(new retrofit2.Callback<java.util.Map<String, Object>>() {
@@ -376,20 +379,46 @@ public class LoginActivity extends BaseActivity {
                     if (response.isSuccessful() && response.body() != null) {
                         android.util.Log.d("LoginActivity", "✅ Backend login successful");
                         
+                        // Extract JWT token from response
+                        String jwtToken = (String) response.body().get("token");
+                        if (jwtToken != null && !jwtToken.isEmpty()) {
+                            // Save JWT token for future API requests
+                            preferencesManager.setJwtToken(jwtToken);
+                            android.util.Log.d("LoginActivity", "✅ JWT token saved: " + jwtToken.substring(0, 20) + "...");
+                        }
+                        
                         // Extract user data from response
                         java.util.Map<String, Object> userData = (java.util.Map<String, Object>) response.body().get("data");
                         if (userData != null) {
                             java.util.Map<String, Object> user = (java.util.Map<String, Object>) userData.get("user");
                             
-                            // Save to local preferences
-                            preferencesManager.setLoggedIn(true);
-                            preferencesManager.setUsername(username);
-                            preferencesManager.setFirstName((String) user.get("firstName"));
-                            preferencesManager.setLastName((String) user.get("lastName"));
-                            preferencesManager.setUserRole((String) user.get("role"));
-                            
-                            Toast.makeText(LoginActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
-                            handleLoginSuccess((String) user.get("role"));
+                            if (user != null) {
+                                // Extract user ID
+                                Object userIdObj = user.get("id");
+                                int userId = -1;
+                                if (userIdObj instanceof Number) {
+                                    userId = ((Number) userIdObj).intValue();
+                                } else if (userIdObj instanceof String) {
+                                    try {
+                                        userId = Integer.parseInt((String) userIdObj);
+                                    } catch (NumberFormatException e) {
+                                        android.util.Log.e("LoginActivity", "❌ Invalid user ID format");
+                                    }
+                                }
+                                
+                                // Save to local preferences
+                                preferencesManager.setLoggedIn(true);
+                                preferencesManager.setUserId(userId);
+                                preferencesManager.setUsername(username);
+                                preferencesManager.setFirstName((String) user.get("firstName"));
+                                preferencesManager.setLastName((String) user.get("lastName"));
+                                preferencesManager.setUserRole((String) user.get("role"));
+                                
+                                android.util.Log.d("LoginActivity", "✅ User data saved - ID: " + userId + ", Role: " + user.get("role"));
+                                
+                                Toast.makeText(LoginActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
+                                handleLoginSuccess((String) user.get("role"));
+                            }
                         }
                     } else {
                         android.util.Log.e("LoginActivity", "❌ Backend login failed: " + response.code());
