@@ -11,22 +11,25 @@ import com.example.blottermanagementsystem.utils.PreferencesManager;
 import java.util.concurrent.Executors;
 
 /**
- * AuthViewModel - Handles authentication with fallback to local SQLite
+ * 🚀 AuthViewModel - PURE NEON ONLINE-ONLY MODE
  * 
  * ARCHITECTURE:
- * - Primary: Neon PostgreSQL (via LoginActivity/RegisterActivity API calls)
- * - Fallback: Local SQLite (via this ViewModel) for offline mode
+ * - ONLY: Neon PostgreSQL (via LoginActivity/RegisterActivity API calls)
+ * - NO LOCAL SQLITE: BlotterDatabase.getDatabase() returns null
  * 
  * FLOW:
- * 1. LoginActivity calls backend API (Neon)
- * 2. If network fails, LoginActivity calls AuthViewModel.login() (local SQLite)
- * 3. RegisterActivity calls backend API (Neon)
- * 4. If network fails, RegisterActivity calls AuthViewModel.register() (local SQLite)
+ * 1. LoginActivity calls backend API (Neon) → JWT token stored
+ * 2. RegisterActivity calls backend API (Neon) → JWT token stored
+ * 3. All data comes from Neon backend
+ * 4. No offline fallback (pure online mode)
  * 
  * JWT TOKEN:
  * - Stored in PreferencesManager after successful Neon login
  * - Automatically added to all API requests via JWT interceptor
  * - Cleared on logout
+ * 
+ * NOTE: This ViewModel is kept for future offline support
+ * Currently, all authentication goes through backend API only
  */
 public class AuthViewModel extends AndroidViewModel {
     private final BlotterDatabase database;

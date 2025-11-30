@@ -145,100 +145,26 @@ public class AddOfficerActivity extends BaseActivity {
         
         btnAddOfficer.setEnabled(false);
         
-        Executors.newSingleThreadExecutor().execute(() -> {
-            try {
-                // Create officer with required constructor parameters
-                String fullName = firstName + " " + lastName;
-                Officer officer = new Officer(fullName, rank, badgeNumber);
-                officer.setContactNumber(contactNumber);
-                officer.setEmail(email);
-                officer.setGender(gender);
-                officer.setActive(true);
-                
-                long officerId = database.officerDao().insertOfficer(officer);
-                
-                // Generate credentials for the officer
-                String username = com.example.blottermanagementsystem.utils.PasswordGenerator
-                    .generateUsername(firstName, lastName);
-                String temporaryPassword = com.example.blottermanagementsystem.utils.PasswordGenerator
-                    .generateOfficerPassword(rank, badgeNumber);
-                
-                android.util.Log.d("AddOfficer", "=== OFFICER CREDENTIALS ===");
-                android.util.Log.d("AddOfficer", "Username: " + username);
-                android.util.Log.d("AddOfficer", "Password (plain): " + temporaryPassword);
-                
-                // Check if username already exists
-                com.example.blottermanagementsystem.data.entity.User existingUser = 
-                    database.userDao().getUserByUsername(username);
-                
-                if (existingUser == null) {
-                    try {
-                        // Hash the password before saving
-                        String hashedPassword = com.example.blottermanagementsystem.utils.SecurityUtils.hashPassword(temporaryPassword);
-                        android.util.Log.d("AddOfficer", "Password (plain): " + temporaryPassword);
-                        android.util.Log.d("AddOfficer", "Password (hashed): " + hashedPassword);
-                        
-                        // Verify hash is correct length (SHA-256 = 64 hex chars)
-                        if (hashedPassword.length() != 64) {
-                            android.util.Log.e("AddOfficer", "❌ ERROR: Hash length is " + hashedPassword.length() + ", expected 64!");
-                            throw new Exception("Password hash is invalid length: " + hashedPassword.length());
-                        }
-                        
-                        com.example.blottermanagementsystem.data.entity.User officerUser = 
-                            new com.example.blottermanagementsystem.data.entity.User(
-                                firstName, lastName, username, hashedPassword, "Officer"
-                            );
-                        officerUser.setActive(true);
-                        officerUser.setProfileCompleted(true);
-                        officerUser.setGender(gender);
-                        officerUser.setEmail(email);
-                        officerUser.setPhoneNumber(contactNumber);
-                        officerUser.setMustChangePassword(true); // Force password change on first login
-                        
-                        android.util.Log.d("AddOfficer", "=== ABOUT TO INSERT USER ===");
-                        android.util.Log.d("AddOfficer", "Username: " + officerUser.getUsername());
-                        android.util.Log.d("AddOfficer", "Password hash: " + officerUser.getPassword());
-                        android.util.Log.d("AddOfficer", "Active: " + officerUser.isActive());
-                        android.util.Log.d("AddOfficer", "Role: " + officerUser.getRole());
-                        
-                        long userId = database.userDao().insertUser(officerUser);
-                        android.util.Log.d("AddOfficer", "✅ Officer User created! UserID: " + userId);
-                        
-                        // Verify user was actually saved
-                        com.example.blottermanagementsystem.data.entity.User savedUser = database.userDao().getUserByUsername(username);
-                        if (savedUser == null) {
-                            throw new Exception("User was not saved to database!");
-                        }
-                        android.util.Log.d("AddOfficer", "✅ Verified user exists in database");
-                        android.util.Log.d("AddOfficer", "Saved hash: " + savedUser.getPassword());
-                        
-                        // Link officer to user
-                        officer.setId((int) officerId);
-                        officer.setUserId((int) userId);
-                        database.officerDao().updateOfficer(officer);
-                        android.util.Log.d("AddOfficer", "✅ Officer linked to user! OfficerID: " + officerId);
-                        
-                        // 🚀 REAL-TIME SYNC TO NEON: Send officer data to backend
-                        syncOfficerToNeon(firstName, lastName, username, temporaryPassword, email, contactNumber, rank, badgeNumber, gender);
-                    } catch (Exception e) {
-                        android.util.Log.e("AddOfficer", "❌ ERROR creating officer user: " + e.getMessage(), e);
-                        e.printStackTrace();
-                        throw e; // Re-throw to be caught by outer try-catch
-                    }
-                } else {
-                    android.util.Log.e("AddOfficer", "❌ Username already exists: " + username);
-                }
-                
-                runOnUiThread(() -> {
-                    // Check internet connection and show appropriate dialog
-                    handleCredentialsDelivery(fullName, username, temporaryPassword, rank, badgeNumber, email);
-                });
-            } catch (Exception e) {
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    btnAddOfficer.setEnabled(true);
-                });
-            }
+        // 🚀 PURE NEON MODE: Skip local database, go straight to backend API
+        // Generate credentials for the officer
+        String username = com.example.blottermanagementsystem.utils.PasswordGenerator
+            .generateUsername(firstName, lastName);
+        String temporaryPassword = com.example.blottermanagementsystem.utils.PasswordGenerator
+            .generateOfficerPassword(rank, badgeNumber);
+        
+        android.util.Log.d("AddOfficer", "🚀 PURE NEON MODE: Creating officer via backend API");
+        android.util.Log.d("AddOfficer", "=== OFFICER CREDENTIALS ===");
+        android.util.Log.d("AddOfficer", "Username: " + username);
+        android.util.Log.d("AddOfficer", "Password (plain): " + temporaryPassword);
+        
+        String fullName = firstName + " " + lastName;
+        
+        // 🚀 SEND DIRECTLY TO NEON BACKEND (no local database)
+        syncOfficerToNeon(firstName, lastName, username, temporaryPassword, email, contactNumber, rank, badgeNumber, gender);
+        
+        // Show credentials dialog after sending to backend
+        runOnUiThread(() -> {
+            handleCredentialsDelivery(fullName, username, temporaryPassword, rank, badgeNumber, email);
         });
     }
     
