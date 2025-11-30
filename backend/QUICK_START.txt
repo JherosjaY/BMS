@@ -1,0 +1,77 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                    BMS BACKEND - QUICK START GUIDE                          ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+📋 STEP 1: CREATE .env FILE
+────────────────────────────────────────────────────────────────────────────
+
+1. Open: backend folder
+2. Create file: .env
+3. Copy content from: ENV_SETUP_INSTRUCTIONS.md
+4. Fill in 3 missing values:
+   - CLOUDINARY_API_SECRET (from Cloudinary dashboard)
+   - FCM_SERVER_API_KEY (from Firebase console)
+   - DATABASE_URL (from Neon)
+5. Save file
+
+✅ ALREADY PROVIDED:
+   - JWT_SECRET: QTDtK7O2pLhe6NMy5v8wBgVRFXWi9nZP0AGaHukzJbU314mYIxdEjlsScrofCq
+   - FIREBASE_PROJECT_ID: blotter-fcm
+   - FIREBASE_PRIVATE_KEY: ✅ (extracted)
+   - FIREBASE_CLIENT_EMAIL: ✅ (extracted)
+   - CLOUDINARY_CLOUD_NAME: ddoby8tam
+   - CLOUDINARY_API_KEY: 331777292844342
+
+
+📦 STEP 2: INSTALL DEPENDENCIES
+────────────────────────────────────────────────────────────────────────────
+
+cd backend
+npm install
+
+
+🗄️ STEP 3: SETUP DATABASE
+────────────────────────────────────────────────────────────────────────────
+
+npm run migrate    # Creates all tables
+npm run seed       # Creates admin account
+
+
+🚀 STEP 4: RUN LOCALLY
+────────────────────────────────────────────────────────────────────────────
+
+npm run dev        # Start with auto-reload
+npm start          # Production mode
+
+Test: http://localhost:5000/health
+
+
+🌐 STEP 5: DEPLOY TO RENDER/HEROKU
+────────────────────────────────────────────────────────────────────────────
+
+See: DEPLOYMENT_CHECKLIST.md
+
+
+📱 STEP 6: CONNECT ANDROID APP
+────────────────────────────────────────────────────────────────────────────
+
+Update backend URL in ApiClient.java
+Test authentication flows
+
+
+════════════════════════════════════════════════════════════════════════════
+
+⚠️ MISSING 3 VALUES - GET THESE FIRST:
+
+1. CLOUDINARY API SECRET
+   URL: https://cloudinary.com/console → Settings → API Keys
+
+2. FCM SERVER API KEY
+   URL: https://console.firebase.google.com → Cloud Messaging
+
+3. NEON DATABASE URL
+   URL: https://neon.tech → Your database → Connection string
+
+════════════════════════════════════════════════════════════════════════════
+
+✅ READY TO GO!
