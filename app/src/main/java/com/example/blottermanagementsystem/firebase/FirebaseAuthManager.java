@@ -245,6 +245,7 @@ public class FirebaseAuthManager {
     /**
      * 🚀 SYNC USER TO NEON BACKEND
      * Syncs Firebase user to Neon for multi-device support
+     * Then redirects to ProfilePictureSelectionActivity (NOT dashboard)
      */
     private void syncToNeonBackend(FirebaseUser user, String firebaseToken) {
         try {
@@ -257,12 +258,31 @@ public class FirebaseAuthManager {
                     public void onSyncSuccess(String userId, String role) {
                         Log.d(TAG, "✅ Firebase user synced to Neon successfully");
                         Log.d(TAG, "✅ User ID: " + userId + ", Role: " + role);
+                        
+                        // 🎯 REDIRECT TO PROFILE PICTURE SELECTION (not dashboard)
+                        // Auto-fill first name and last name from Google account
+                        String firstName = user.getDisplayName() != null ? 
+                            user.getDisplayName().split(" ")[0] : "User";
+                        String lastName = user.getDisplayName() != null && 
+                            user.getDisplayName().contains(" ") ? 
+                            user.getDisplayName().split(" ")[1] : "";
+                        
+                        redirectToProfilePictureSelection(userId, firstName, lastName, true);
                     }
                     
                     @Override
                     public void onSyncError(String errorMessage) {
-                        Log.e(TAG, "⚠️ Neon sync error (offline mode): " + errorMessage);
-                        Log.d(TAG, "✅ Using cached Firebase data for offline support");
+                        Log.e(TAG, "⚠️ Neon sync error: " + errorMessage);
+                        Log.d(TAG, "✅ Using cached Firebase data");
+                        
+                        // Still redirect to PFP selection even if sync fails
+                        String firstName = user.getDisplayName() != null ? 
+                            user.getDisplayName().split(" ")[0] : "User";
+                        String lastName = user.getDisplayName() != null && 
+                            user.getDisplayName().contains(" ") ? 
+                            user.getDisplayName().split(" ")[1] : "";
+                        
+                        redirectToProfilePictureSelection(user.getUid(), firstName, lastName, true);
                     }
                     
                     @Override
@@ -272,6 +292,29 @@ public class FirebaseAuthManager {
                 });
         } catch (Exception e) {
             Log.e(TAG, "❌ Error syncing to Neon: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * 🎯 REDIRECT TO PROFILE PICTURE SELECTION
+     * Used after Google Sign-In (auto-filled name)
+     */
+    private void redirectToProfilePictureSelection(String userId, String firstName, 
+                                                   String lastName, boolean isGoogleSignIn) {
+        try {
+            android.content.Intent intent = new android.content.Intent(context, 
+                com.example.blottermanagementsystem.ui.activities.ProfilePictureSelectionActivity.class);
+            intent.putExtra("userId", userId);
+            intent.putExtra("firstName", firstName);
+            intent.putExtra("lastName", lastName);
+            intent.putExtra("isGoogleSignIn", isGoogleSignIn); // true = auto-filled, false = empty
+            intent.setFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | 
+                android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            context.startActivity(intent);
+            
+            Log.d(TAG, "✅ Redirected to ProfilePictureSelectionActivity");
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error redirecting to PFP selection: " + e.getMessage());
         }
     }
     
