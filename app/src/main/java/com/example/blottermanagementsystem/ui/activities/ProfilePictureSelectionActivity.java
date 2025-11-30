@@ -44,6 +44,7 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
     
     // 🎯 NEW: Handle both Google Sign-In and Email Sign-Up flows
     private boolean isGoogleSignIn = false;
+    private boolean isFirstTimeUser = false;
     private String userIdFromIntent = "";
     private String firstNameFromIntent = "";
     private String lastNameFromIntent = "";
@@ -75,9 +76,11 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
         firstNameFromIntent = intent.getStringExtra("firstName");
         lastNameFromIntent = intent.getStringExtra("lastName");
         isGoogleSignIn = intent.getBooleanExtra("isGoogleSignIn", false);
+        isFirstTimeUser = intent.getBooleanExtra("isFirstTimeUser", true);
         
         android.util.Log.d("ProfilePictureSelection", "=== ONCREATE ===");
         android.util.Log.d("ProfilePictureSelection", "🎯 isGoogleSignIn: " + isGoogleSignIn);
+        android.util.Log.d("ProfilePictureSelection", "🎯 isFirstTimeUser: " + isFirstTimeUser);
         android.util.Log.d("ProfilePictureSelection", "🎯 userId: " + userIdFromIntent);
         android.util.Log.d("ProfilePictureSelection", "🎯 firstName: " + firstNameFromIntent);
         android.util.Log.d("ProfilePictureSelection", "🎯 lastName: " + lastNameFromIntent);
@@ -104,6 +107,38 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
         }
         
         setupListeners();
+        
+        // 🎯 NEW: Show tooltips if first time user
+        if (isFirstTimeUser) {
+            android.util.Log.d("ProfilePictureSelection", "✅ First time user - showing tooltips");
+            showScreenTooltips();
+        } else {
+            android.util.Log.d("ProfilePictureSelection", "⏭️ Returning user - skipping tooltips");
+        }
+    }
+    
+    /**
+     * 🎯 SHOW SCREEN TOOLTIPS (First Time Only)
+     * Display helpful tooltips for new users
+     */
+    private void showScreenTooltips() {
+        try {
+            // Create a simple tooltip dialog
+            androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+            builder.setTitle("📸 Profile Picture Setup")
+                .setMessage("1️⃣ Enter your first and last name\n\n" +
+                           "2️⃣ Take a photo or choose from gallery\n\n" +
+                           "3️⃣ Click Continue to proceed\n\n" +
+                           "💡 You can change your profile picture anytime!")
+                .setPositiveButton("Got it!", (dialog, which) -> {
+                    android.util.Log.d("ProfilePictureSelection", "✅ User acknowledged tooltips");
+                    dialog.dismiss();
+                })
+                .setCancelable(false)
+                .show();
+        } catch (Exception e) {
+            android.util.Log.e("ProfilePictureSelection", "❌ Error showing tooltips: " + e.getMessage());
+        }
     }
     
     private void loadGoogleProfilePicture() {
@@ -523,6 +558,15 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
             default:
                 intent = new Intent(this, UserDashboardActivity.class);
                 break;
+        }
+        
+        // 🎯 NEW: Pass isFirstTimeUser flag to dashboard
+        intent.putExtra("isFirstTimeUser", isFirstTimeUser);
+        
+        // 🎯 NEW: Set isFirstTimeUser to false after first time
+        if (isFirstTimeUser) {
+            preferencesManager.setFirstTimeUser(false);
+            android.util.Log.d("ProfilePictureSelection", "✅ Set isFirstTimeUser = false");
         }
         
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
