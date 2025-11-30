@@ -17,8 +17,7 @@ import com.example.blottermanagementsystem.utils.PreferencesManager;
  * - Google Sign-In
  * - Email/Password login
  * - Email/Password registration
- * - Offline support (local caching)
- * - Sync with Neon backend
+ * - Pure online mode (Neon only)
  */
 public class FirebaseAuthManager {
     private static final String TAG = "FirebaseAuthManager";
@@ -43,7 +42,7 @@ public class FirebaseAuthManager {
     
     /**
      * 🚀 GOOGLE SIGN-IN WITH FIREBASE
-     * Works online and offline (cached locally)
+     * Pure online mode
      */
     public void googleSignIn(String googleIdToken, AuthCallback callback) {
         if (callback != null) callback.onLoading();
@@ -65,10 +64,7 @@ public class FirebaseAuthManager {
                                 if (tokenTask.isSuccessful()) {
                                     String firebaseToken = tokenTask.getResult().getToken();
                                     
-                                    // Cache user data locally for offline support
-                                    cacheUserLocally(user, firebaseToken);
-                                    
-                                    // ❌ REMOVED: Sync to Neon backend (Pure online mode)
+                                    // ❌ REMOVED: Local caching (Pure online mode)
                                     
                                     if (callback != null) {
                                         callback.onSuccess(user, firebaseToken);
@@ -100,7 +96,7 @@ public class FirebaseAuthManager {
     
     /**
      * 🔥 EMAIL/PASSWORD LOGIN WITH FIREBASE
-     * Works online and offline (cached locally)
+     * Pure online mode
      */
     public void emailPasswordLogin(String email, String password, AuthCallback callback) {
         if (callback != null) callback.onLoading();
@@ -120,10 +116,7 @@ public class FirebaseAuthManager {
                                 if (tokenTask.isSuccessful()) {
                                     String firebaseToken = tokenTask.getResult().getToken();
                                     
-                                    // Cache user data locally
-                                    cacheUserLocally(user, firebaseToken);
-                                    
-                                    // ❌ REMOVED: Sync to Neon backend (Pure online mode)
+                                    // ❌ REMOVED: Local caching (Pure online mode)
                                     
                                     if (callback != null) {
                                         callback.onSuccess(user, firebaseToken);
@@ -213,44 +206,11 @@ public class FirebaseAuthManager {
         } catch (Exception e) {
             Log.e(TAG, "❌ Exception during Registration: " + e.getMessage());
             if (callback != null) {
-                callback.onError(e.getMessage());
-            }
-        }
-    }
-    
-    /**
-     * 💾 CACHE USER DATA LOCALLY FOR OFFLINE SUPPORT
-     */
-    private void cacheUserLocally(FirebaseUser user, String token) {
-        try {
-            preferencesManager.setLoggedIn(true);
-            // Convert String userId to int for preferences
-            try {
-                int userIdInt = Integer.parseInt(user.getUid());
-                preferencesManager.setUserId(userIdInt);
-            } catch (NumberFormatException e) {
-                Log.w(TAG, "⚠️ Could not parse userId as int: " + user.getUid());
-            }
-            preferencesManager.setEmail(user.getEmail());
-            preferencesManager.setFirstName(user.getDisplayName() != null ? 
-                user.getDisplayName().split(" ")[0] : "User");
-            preferencesManager.setLastName(user.getDisplayName() != null && 
-                user.getDisplayName().contains(" ") ? 
-                user.getDisplayName().split(" ")[1] : "");
-            preferencesManager.setFirebaseToken(token);
-            preferencesManager.setUserRole("user"); // Default role
-            
-            Log.d(TAG, "✅ User data cached locally for offline support");
-        } catch (Exception e) {
-            Log.e(TAG, "❌ Error caching user data: " + e.getMessage());
-        }
-    }
     
     // ❌ REMOVED: syncToNeonBackend() method (Pure online mode - sync handled in LoginActivity)
     
     /**
      * 🎯 REDIRECT TO PROFILE PICTURE SELECTION
-     * Used after Google Sign-In (auto-filled name)
      * Passes isFirstTimeUser flag for tooltips/onboarding
      */
     private void redirectToProfilePictureSelection(String userId, String firstName, 
@@ -303,10 +263,5 @@ public class FirebaseAuthManager {
         return firebaseAuth.getCurrentUser() != null;
     }
     
-    /**
-     * 💾 GET CACHED USER (OFFLINE SUPPORT)
-     */
-    public boolean hasCachedUser() {
-        return preferencesManager.isLoggedIn();
-    }
+    // ❌ REMOVED: hasCachedUser() method (Pure online mode)
 }
