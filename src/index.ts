@@ -3,7 +3,9 @@ import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import { bearer } from "@elysiajs/bearer";
 import { jwt } from "@elysiajs/jwt";
+import { ws } from "@elysiajs/ws";
 import { db } from "./db";
+import { websocketRoutes } from "./websocket/websocketRoutes";
 
 // Firebase Cloud Messaging initialization
 // Note: FCM will be disabled if environment variables are not set
@@ -50,6 +52,7 @@ export const app = new Elysia()
       secret: process.env.JWT_SECRET || "your-secret-key-change-in-production",
     })
   )
+  .use(ws())
   .use(
     swagger({
       path: "/swagger",
@@ -69,6 +72,7 @@ export const app = new Elysia()
     timestamp: new Date().toISOString(),
     endpoints: {
       swagger: "/swagger",
+      websocket: "ws://your-domain/ws/realtime",
       auth: "/api/auth",
       reports: "/api/reports",
       users: "/api/users",
@@ -83,6 +87,7 @@ export const app = new Elysia()
       activityLogs: "/api/activity-logs",
       notifications: "/api/notifications",
       respondents: "/api/respondents",
+      realtime: "/ws/status",
     },
   }))
   .get("/health", () => ({
@@ -128,6 +133,8 @@ export const app = new Elysia()
       .use(notificationsRoutes)
       .use(respondentsRoutes)
   )
+  // Mount WebSocket routes
+  .use(websocketRoutes)
   .listen(process.env.PORT || 3000);
 
 console.log(
