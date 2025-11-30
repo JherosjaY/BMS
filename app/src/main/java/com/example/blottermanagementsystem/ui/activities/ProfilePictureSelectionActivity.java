@@ -424,9 +424,43 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
         });
         
         btnSkip.setOnClickListener(v -> {
+            // ✅ FIXED: Require first name and last name before skipping
+            String firstName = etFirstName.getText().toString().trim();
+            String lastName = etLastName.getText().toString().trim();
+            
+            if (firstName.isEmpty() || lastName.isEmpty()) {
+                Toast.makeText(this, "Please enter your first and last name", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            // Save name to preferences
+            preferencesManager.setFirstName(firstName);
+            preferencesManager.setLastName(lastName);
+            
             // Skip profile picture selection - use default
             preferencesManager.setHasSelectedPfp(false);
-            navigateToDashboard();
+            
+            // Update database with name
+            int userId = preferencesManager.getUserId();
+            if (userId != -1) {
+                Executors.newSingleThreadExecutor().execute(() -> {
+                    com.example.blottermanagementsystem.data.database.BlotterDatabase database = 
+                        com.example.blottermanagementsystem.data.database.BlotterDatabase.getDatabase(this);
+                    com.example.blottermanagementsystem.data.entity.User user = database.userDao().getUserById(userId);
+                    
+                    if (user != null) {
+                        user.setFirstName(firstName);
+                        user.setLastName(lastName);
+                        user.setProfileCompleted(true);
+                        database.userDao().updateUser(user);
+                        android.util.Log.d("ProfilePictureSelection", "✅ Updated user in database (skip): " + firstName + " " + lastName);
+                    }
+                    
+                    runOnUiThread(() -> navigateToDashboard());
+                });
+            } else {
+                navigateToDashboard();
+            }
         });
         
         btnContinue.setOnClickListener(v -> {
