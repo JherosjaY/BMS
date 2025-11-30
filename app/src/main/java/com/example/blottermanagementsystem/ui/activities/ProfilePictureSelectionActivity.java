@@ -163,19 +163,18 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
                 .placeholder(R.drawable.ic_person)
                 .error(R.drawable.ic_person)
                 .circleCrop()
-                    .into(ivSelectedImage);
-                
-                ivSelectedImage.setVisibility(android.view.View.VISIBLE);
-                tvSelectedAvatar.setVisibility(android.view.View.GONE);
-                
-                // Mark step 1 as completed since Google photo is loaded
-                markStepCompleted(1);
-                
-                // Mark as having profile picture
-                preferencesManager.setHasSelectedPfp(true);
-                
-                Toast.makeText(this, "Loaded Google profile picture for " + displayName, Toast.LENGTH_SHORT).show();
-            }
+                .into(ivSelectedImage);
+            
+            ivSelectedImage.setVisibility(android.view.View.VISIBLE);
+            tvSelectedAvatar.setVisibility(android.view.View.GONE);
+            
+            // Mark step 1 as completed since Google photo is loaded
+            markStepCompleted(1);
+            
+            // Mark as having profile picture
+            preferencesManager.setHasSelectedPfp(true);
+            
+            Toast.makeText(this, "Loaded Google profile picture", Toast.LENGTH_SHORT).show();
         }
     }
     
