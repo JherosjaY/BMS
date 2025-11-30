@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
-    // id("com.google.gms.google-services") // Disabled for local testing
+    id("com.google.gms.google-services") // Enabled for Firebase
 }
 
 android {
@@ -72,12 +72,13 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
     
-    // Firebase (DISABLED FOR LOCAL TESTING - Enable later for cloud)
-    // implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
-    // implementation("com.google.firebase:firebase-messaging")
-    // implementation("com.google.firebase:firebase-analytics")
-    // implementation("com.google.firebase:firebase-firestore")
-    // implementation("com.google.firebase:firebase-storage")
+    // Firebase (ENABLED FOR REALTIME)
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
     
     // CameraX (HEAVY - adds ~5MB)
     implementation("androidx.camera:camera-core:1.3.1")
