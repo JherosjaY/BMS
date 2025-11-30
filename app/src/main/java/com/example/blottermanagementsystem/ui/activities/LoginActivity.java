@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.blottermanagementsystem.R;
 import com.example.blottermanagementsystem.data.entity.User;
 import com.example.blottermanagementsystem.firebase.FirebaseAuthManager;
+import com.example.blottermanagementsystem.utils.NetworkConnectivityManager;
 import com.example.blottermanagementsystem.utils.PreferencesManager;
 import com.example.blottermanagementsystem.viewmodel.AuthViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -38,6 +39,7 @@ public class LoginActivity extends BaseActivity {
     private AuthViewModel authViewModel;
     private PreferencesManager preferencesManager;
     private FirebaseAuthManager firebaseAuthManager;
+    private NetworkConnectivityManager networkConnectivityManager;
     
     private GoogleSignInClient googleSignInClient;
     private ActivityResultLauncher<Intent> googleSignInLauncher;
@@ -65,6 +67,7 @@ public class LoginActivity extends BaseActivity {
         progressBar = findViewById(R.id.progressBar);
         preferencesManager = new PreferencesManager(this);
         firebaseAuthManager = new FirebaseAuthManager(this, preferencesManager);
+        networkConnectivityManager = new NetworkConnectivityManager(this);
     }
     
     private void setupGoogleSignIn() {
@@ -287,6 +290,17 @@ public class LoginActivity extends BaseActivity {
         btnLogin.setOnClickListener(v -> attemptLogin());
         
         btnGoogleSignIn.setOnClickListener(v -> {
+            // 🌐 CHECK INTERNET CONNECTION (Pure Neon Online-Only Mode)
+            if (!networkConnectivityManager.isConnectedToInternet()) {
+                Toast.makeText(LoginActivity.this, 
+                    "❌ No internet connection\n\nThis app requires internet to work.", 
+                    Toast.LENGTH_LONG).show();
+                android.util.Log.d("LoginActivity", "⚠️ User tried to sign in without internet");
+                return;
+            }
+            
+            android.util.Log.d("LoginActivity", "✅ Internet connected - Proceeding with Google Sign-In");
+            
             // Sign out from Google first to allow account selection
             googleSignInClient.signOut().addOnCompleteListener(this, task -> {
                 // Launch Google Sign-In with account picker
