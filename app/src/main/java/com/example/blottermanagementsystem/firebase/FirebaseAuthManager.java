@@ -226,7 +226,13 @@ public class FirebaseAuthManager {
     private void cacheUserLocally(FirebaseUser user, String token) {
         try {
             preferencesManager.setLoggedIn(true);
-            preferencesManager.setUserId(user.getUid());
+            // Convert String userId to int for preferences
+            try {
+                int userIdInt = Integer.parseInt(user.getUid());
+                preferencesManager.setUserId(userIdInt);
+            } catch (NumberFormatException e) {
+                Log.w(TAG, "⚠️ Could not parse userId as int: " + user.getUid());
+            }
             preferencesManager.setEmail(user.getEmail());
             preferencesManager.setFirstName(user.getDisplayName() != null ? 
                 user.getDisplayName().split(" ")[0] : "User");
