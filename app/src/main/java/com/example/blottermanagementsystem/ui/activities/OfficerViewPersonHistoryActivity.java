@@ -51,7 +51,7 @@ public class OfficerViewPersonHistoryActivity extends BaseActivity {
         
         try {
             database = BlotterDatabase.getDatabase(this);
-            personHistoryService = new PersonHistoryService(this);
+            // ❌ REMOVED: personHistoryService = new PersonHistoryService(this); (Pure online mode)
             currentUserId = getSharedPreferences("UserSession", MODE_PRIVATE).getString("userId", "");
             
             // Get person data from intent
@@ -224,23 +224,8 @@ public class OfficerViewPersonHistoryActivity extends BaseActivity {
     // ============ CLOUD SYNC METHODS ============
     
     private void syncWithCloud() {
-        Log.d(TAG, "☁️ Syncing with cloud for person: " + personName);
-        Toast.makeText(this, "Syncing with cloud...", Toast.LENGTH_SHORT).show();
-        
-        personHistoryService.getPersonCompleteHistory(personName, new PersonHistoryService.CompleteHistoryCallback() {
-            @Override
-            public void onSuccess(Map<String, Object> history) {
-                Log.d(TAG, "✅ Cloud sync successful");
-                Toast.makeText(OfficerViewPersonHistoryActivity.this, "✅ Sync complete", Toast.LENGTH_SHORT).show();
-                loadPersonHistory();
-            }
-
-            @Override
-            public void onError(String error) {
-                Log.e(TAG, "❌ Cloud sync error: " + error);
-                Toast.makeText(OfficerViewPersonHistoryActivity.this, "Sync failed: " + error, Toast.LENGTH_SHORT).show();
-            }
-        });
+        // ❌ REMOVED: personHistoryService call (Pure online mode)
+        Toast.makeText(this, "Pure online mode - no local sync needed", Toast.LENGTH_SHORT).show();
     }
     
     private void showAddRecordDialog() {

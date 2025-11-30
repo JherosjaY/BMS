@@ -68,8 +68,7 @@ public class FirebaseAuthManager {
                                     // Cache user data locally for offline support
                                     cacheUserLocally(user, firebaseToken);
                                     
-                                    // Sync to Neon backend
-                                    syncToNeonBackend(user, firebaseToken);
+                                    // ❌ REMOVED: Sync to Neon backend (Pure online mode)
                                     
                                     if (callback != null) {
                                         callback.onSuccess(user, firebaseToken);
@@ -124,8 +123,7 @@ public class FirebaseAuthManager {
                                     // Cache user data locally
                                     cacheUserLocally(user, firebaseToken);
                                     
-                                    // Sync to Neon backend
-                                    syncToNeonBackend(user, firebaseToken);
+                                    // ❌ REMOVED: Sync to Neon backend (Pure online mode)
                                     
                                     if (callback != null) {
                                         callback.onSuccess(user, firebaseToken);
