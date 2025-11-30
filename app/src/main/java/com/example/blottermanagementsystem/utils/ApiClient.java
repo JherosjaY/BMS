@@ -99,7 +99,9 @@ public class ApiClient {
      */
     public static ApiService getApiService() {
         if (apiService == null) {
-            initApiClient();
+            // Initialize with default PreferencesManager if not already initialized
+            PreferencesManager preferencesManager = new PreferencesManager(null);
+            initApiClient(preferencesManager);
         }
         return apiService;
     }

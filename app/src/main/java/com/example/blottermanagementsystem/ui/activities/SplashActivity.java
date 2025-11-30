@@ -35,8 +35,8 @@ public class SplashActivity extends AppCompatActivity {
         preferencesManager = new PreferencesManager(this);
         database = BlotterDatabase.getDatabase(this);
         
-        // Initialize API Client (Elysia Backend)
-        ApiClient.initApiClient();
+        // Initialize API Client (Elysia Backend) with PreferencesManager
+        ApiClient.initApiClient(preferencesManager);
         
         // Initialize Cloudinary
         CloudinaryHelper.initCloudinary(this);
