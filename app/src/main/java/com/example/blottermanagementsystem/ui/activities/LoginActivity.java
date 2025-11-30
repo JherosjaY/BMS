@@ -96,17 +96,23 @@ public class LoginActivity extends BaseActivity {
     
     private void handleGoogleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
+            android.util.Log.d("LoginActivity", "🔍 handleGoogleSignInResult called");
+            
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            android.util.Log.d("LoginActivity", "✅ Got GoogleSignInAccount: " + account.getEmail());
             
             // Get user info
-            String googleId = account.getId(); // ✅ Use actual Google ID
+            String googleId = account.getId();
             String email = account.getEmail();
             String displayName = account.getDisplayName();
             String photoUrl = account.getPhotoUrl() != null ? account.getPhotoUrl().toString() : null;
             
+            android.util.Log.d("LoginActivity", "📧 Email: " + email);
+            android.util.Log.d("LoginActivity", "👤 Display Name: " + displayName);
+            android.util.Log.d("LoginActivity", "🆔 Google ID: " + googleId);
+            
             // Extract clean username from email (before @)
             String username = email.split("@")[0];
-            android.util.Log.d("LoginActivity", "Google Sign-In - GoogleID: " + googleId + ", Email: " + email + ", Username: " + username);
             
             // Parse display name into first and last name
             final String firstName;
@@ -124,45 +130,56 @@ public class LoginActivity extends BaseActivity {
                 lastName = "Account";
             }
             
+            android.util.Log.d("LoginActivity", "📝 First Name: " + firstName + ", Last Name: " + lastName);
+            
             // Save Google account info
             preferencesManager.saveGoogleAccountInfo(email, displayName, photoUrl);
+            android.util.Log.d("LoginActivity", "💾 Saved Google account info");
             
-            // 🔥 FIREBASE AUTH: Use Firebase for authentication
-            // Works online AND offline with local caching
-            android.util.Log.d("LoginActivity", "🔥 Firebase Auth: Signing in with Google");
-            
-            // ✅ Call Firebase to authenticate Google user
+            // Get ID token
             String idToken = account.getIdToken();
+            android.util.Log.d("LoginActivity", "🔑 ID Token: " + (idToken != null ? "✅ Present" : "❌ NULL"));
+            
             if (idToken != null) {
+                android.util.Log.d("LoginActivity", "🔥 Calling firebaseAuthManager.googleSignIn()");
+                
                 firebaseAuthManager.googleSignIn(idToken, new FirebaseAuthManager.AuthCallback() {
                     @Override
                     public void onSuccess(com.google.firebase.auth.FirebaseUser user, String token) {
-                        android.util.Log.d("LoginActivity", "✅ Firebase Google Sign-In successful");
+                        android.util.Log.d("LoginActivity", "✅✅✅ Firebase Google Sign-In SUCCESSFUL");
                         Toast.makeText(LoginActivity.this, "✅ Logged in successfully!", Toast.LENGTH_SHORT).show();
                         
                         // Navigate to appropriate dashboard based on role
                         String role = preferencesManager.getUserRole();
+                        android.util.Log.d("LoginActivity", "🎯 User role: " + role);
                         navigateToDashboard(role);
                     }
                     
                     @Override
                     public void onError(String errorMessage) {
-                        android.util.Log.e("LoginActivity", "❌ Firebase Google Sign-In failed: " + errorMessage);
+                        android.util.Log.e("LoginActivity", "❌❌❌ Firebase Google Sign-In FAILED: " + errorMessage);
                         Toast.makeText(LoginActivity.this, "❌ Sign-in failed: " + errorMessage, Toast.LENGTH_SHORT).show();
                         progressBar.setVisibility(View.GONE);
                     }
                     
                     @Override
                     public void onLoading() {
+                        android.util.Log.d("LoginActivity", "🔄 Firebase Auth loading...");
                         progressBar.setVisibility(View.VISIBLE);
                     }
                 });
             } else {
+                android.util.Log.e("LoginActivity", "❌ ID Token is NULL!");
                 Toast.makeText(this, "❌ Failed to get Google ID token", Toast.LENGTH_SHORT).show();
             }
             
         } catch (ApiException e) {
+            android.util.Log.e("LoginActivity", "❌ ApiException: " + e.getMessage());
             Toast.makeText(this, "Google Sign-In failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            android.util.Log.e("LoginActivity", "❌ Unexpected Exception: " + e.getMessage());
+            e.printStackTrace();
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
     
