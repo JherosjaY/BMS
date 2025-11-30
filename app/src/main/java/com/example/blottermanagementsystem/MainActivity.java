@@ -14,7 +14,7 @@ import com.example.blottermanagementsystem.ui.activities.OfficerDashboardActivit
 import com.example.blottermanagementsystem.ui.activities.UserDashboardActivity;
 import com.example.blottermanagementsystem.ui.activities.ProfilePictureSelectionActivity;
 import com.example.blottermanagementsystem.utils.PreferencesManager;
-import com.example.blottermanagementsystem.services.BackgroundSyncService;
+// import com.example.blottermanagementsystem.services.BackgroundSyncService; // 🚀 DISABLED: Pure Neon mode
 import com.example.blottermanagementsystem.websocket.WebSocketManager;
 import com.example.blottermanagementsystem.websocket.RealtimeListener;
 import java.util.concurrent.Executors;
@@ -29,10 +29,10 @@ public class MainActivity extends BaseActivity implements RealtimeListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // ✅ START BACKGROUND SYNC SERVICE
-        Intent syncIntent = new Intent(this, BackgroundSyncService.class);
-        startService(syncIntent);
-        android.util.Log.d("MainActivity", "✅ Background Sync Service started");
+        // 🚀 DISABLED: Background Sync Service (Pure Neon mode - no local sync needed)
+        // Intent syncIntent = new Intent(this, BackgroundSyncService.class);
+        // startService(syncIntent);
+        android.util.Log.d("MainActivity", "⚠️ Background Sync Service DISABLED - Pure Neon mode");
         
         // 🔌 INITIALIZE WEBSOCKET FOR REAL-TIME UPDATES
         webSocketManager = new WebSocketManager(this);
