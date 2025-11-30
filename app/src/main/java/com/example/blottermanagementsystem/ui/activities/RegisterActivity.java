@@ -22,6 +22,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.blottermanagementsystem.R;
 import com.example.blottermanagementsystem.data.entity.User;
+import com.example.blottermanagementsystem.services.EmailAuthService;
+import com.example.blottermanagementsystem.utils.NetworkConnectivityManager;
 import com.example.blottermanagementsystem.utils.PreferencesManager;
 import com.example.blottermanagementsystem.viewmodel.AuthViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -36,6 +38,7 @@ import com.google.android.material.textfield.TextInputEditText;
 public class RegisterActivity extends BaseActivity {
     
     private TextInputEditText etUsernameField, etUsername, etPassword, etConfirmPassword;
+    private TextInputEditText etFirstName, etLastName; // 📧 NEW: Name fields for email sign-up
     private MaterialButton btnRegister;
     private TextView tvError, tvLogin;
     private ProgressBar progressBar;
@@ -43,6 +46,10 @@ public class RegisterActivity extends BaseActivity {
     private GoogleSignInClient googleSignInClient;
     private ActivityResultLauncher<Intent> googleSignInLauncher;
     private PreferencesManager preferencesManager;
+    
+    // 📧 NEW: Email authentication service
+    private EmailAuthService emailAuthService;
+    private NetworkConnectivityManager networkConnectivityManager;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +91,19 @@ public class RegisterActivity extends BaseActivity {
         tvError = findViewById(R.id.tvError);
         tvLogin = findViewById(R.id.tvLogin);
         progressBar = findViewById(R.id.progressBar);
+        
+        // 📧 NEW: Initialize name fields (if they exist in layout)
+        try {
+            etFirstName = findViewById(R.id.etFirstName);
+            etLastName = findViewById(R.id.etLastName);
+        } catch (Exception e) {
+            android.util.Log.w("RegisterActivity", "⚠️ Name fields not found in layout");
+        }
+        
+        // 📧 NEW: Initialize services
+        emailAuthService = new EmailAuthService();
+        networkConnectivityManager = new NetworkConnectivityManager(this);
+        android.util.Log.d("RegisterActivity", "✅ EmailAuthService and NetworkConnectivityManager initialized");
     }
     
     private void setupViewModel() {
@@ -207,9 +227,12 @@ public class RegisterActivity extends BaseActivity {
         String email = etUsername.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
+        String firstName = etFirstName != null ? etFirstName.getText().toString().trim() : "";
+        String lastName = etLastName != null ? etLastName.getText().toString().trim() : "";
         
         if (username.isEmpty() || email.isEmpty() || 
-            password.isEmpty() || confirmPassword.isEmpty()) {
+            password.isEmpty() || confirmPassword.isEmpty() ||
+            firstName.isEmpty() || lastName.isEmpty()) {
             showError("Please fill in all fields");
             return;
         }
@@ -226,14 +249,48 @@ public class RegisterActivity extends BaseActivity {
             return;
         }
         
+        // 📧 NEW: Check internet connection
+        if (!networkConnectivityManager.isConnectedToInternet()) {
+            showError("❌ No internet connection\n\nThis app requires internet to sign up.");
+            return;
+        }
+        
         hideError();
         
         // Show loading on button (disable and show progress)
         btnRegister.setEnabled(false);
         btnRegister.setText("Creating account...");
         
-        // ✅ HYBRID APPROACH: Try backend first, fallback to local
-        registerWithHybridApproach(username, email, password);
+        // 📧 NEW: Use EmailAuthService for sign-up
+        android.util.Log.d("RegisterActivity", "📧 Attempting email sign-up with: " + email);
+        emailAuthService.signUpWithEmail(email, password, firstName, lastName, 
+            new EmailAuthService.AuthCallback() {
+                @Override
+                public void onSuccess(String message, String userId) {
+                    android.util.Log.d("RegisterActivity", "✅ Sign-up successful!");
+                    Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_SHORT).show();
+                    
+                    // Redirect to LoginActivity
+                    Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                    intent.putExtra("email", email); // Pre-fill email on login
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                    finish();
+                }
+                
+                @Override
+                public void onError(String errorMessage) {
+                    android.util.Log.e("RegisterActivity", "❌ Sign-up failed: " + errorMessage);
+                    showError("Sign-up failed: " + errorMessage);
+                    btnRegister.setEnabled(true);
+                    btnRegister.setText("Create Account");
+                }
+                
+                @Override
+                public void onLoading() {
+                    android.util.Log.d("RegisterActivity", "🔄 Signing up...");
+                }
+            });
     }
     
     private void registerWithHybridApproach(String username, String email, String password) {
