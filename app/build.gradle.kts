@@ -73,7 +73,8 @@ dependencies {
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
     
     // Firebase (ENABLED FOR REALTIME)
-    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+    implementation("com.google.firebase:firebase-core")
     implementation("com.google.firebase:firebase-messaging")
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-database")
