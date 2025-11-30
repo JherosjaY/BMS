@@ -7,6 +7,7 @@
 import { Elysia, t } from "elysia";
 import { ws } from "@elysiajs/ws";
 import { realtimeManager } from "./RealtimeManager";
+import { firebaseSync } from "../firebase/FirebaseSync";
 import { v4 as uuidv4 } from "crypto";
 
 interface WebSocketMessage {
@@ -92,27 +93,36 @@ export const websocketRoutes = new Elysia({ prefix: "/ws" })
   .post("/broadcast/hearing", async ({ body }) => {
     const { hearingId, eventType } = body as { hearingId: number; eventType: string };
     await realtimeManager.broadcastHearingUpdate(hearingId, eventType);
+    // Sync to Firebase
+    await firebaseSync.syncHearingToFirebase(hearingId, eventType);
     return {
       success: true,
       message: `Hearing update broadcasted: ${eventType}`,
+      synced: true,
     };
   })
 
   .post("/broadcast/case", async ({ body }) => {
     const { caseId, eventType } = body as { caseId: number; eventType: string };
     await realtimeManager.broadcastCaseUpdate(caseId, eventType);
+    // Sync to Firebase
+    await firebaseSync.syncCaseToFirebase(caseId, eventType);
     return {
       success: true,
       message: `Case update broadcasted: ${eventType}`,
+      synced: true,
     };
   })
 
   .post("/broadcast/person", async ({ body }) => {
     const { personId, eventType, data } = body as { personId: string; eventType: string; data: any };
     realtimeManager.broadcastPersonUpdate(personId, eventType, data);
+    // Sync to Firebase
+    await firebaseSync.syncPersonToFirebase(personId, data, eventType);
     return {
       success: true,
       message: `Person update broadcasted: ${eventType}`,
+      synced: true,
     };
   })
 
@@ -122,6 +132,7 @@ export const websocketRoutes = new Elysia({ prefix: "/ws" })
     return {
       success: true,
       message: `Notification sent to user: ${userId}`,
+      synced: true,
     };
   })
 
