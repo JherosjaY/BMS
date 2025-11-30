@@ -497,6 +497,10 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
      */
     private void continueToNextStep() {
         try {
+            // Get first name and last name from input fields
+            String firstName = etFirstName.getText().toString().trim();
+            String lastName = etLastName.getText().toString().trim();
+            
             // Save profile picture URI if selected (already done in Cloudinary callback)
             if (selectedImageUri != null) {
                 // Only try to grant persistent permission for non-FileProvider URIs

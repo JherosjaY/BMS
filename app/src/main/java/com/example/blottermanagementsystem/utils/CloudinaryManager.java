@@ -129,7 +129,7 @@ public class CloudinaryManager {
                     }
                     
                     @Override
-                    public void onError(String requestId, ErrorCallback error) {
+                    public void onError(String requestId, com.cloudinary.android.callback.ErrorCallback error) {
                         String errorMessage = error.getError() != null ? 
                             error.getError().toString() : "Unknown error";
                         Log.e(TAG, "❌ Upload failed: " + errorMessage);
@@ -139,7 +139,7 @@ public class CloudinaryManager {
                     }
                     
                     @Override
-                    public void onReschedule(String requestId, ErrorCallback error) {
+                    public void onReschedule(String requestId, com.cloudinary.android.callback.ErrorCallback error) {
                         Log.d(TAG, "⏳ Upload rescheduled");
                     }
                 })

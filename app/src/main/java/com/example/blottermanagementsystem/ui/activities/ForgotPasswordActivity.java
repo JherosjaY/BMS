@@ -35,6 +35,7 @@ public class ForgotPasswordActivity extends BaseActivity {
     private EmailAuthService emailAuthService;
     private NetworkConnectivityManager networkConnectivityManager;
     private String userEmail;
+    private long codeExpiryTime;
     private android.os.Handler countdownHandler;
     private Runnable countdownRunnable;
     
@@ -103,6 +104,7 @@ public class ForgotPasswordActivity extends BaseActivity {
         
         hideError();
         userEmail = email;
+        codeExpiryTime = System.currentTimeMillis() + (5 * 60 * 1000); // 5 minutes expiry
         
         // 📧 NEW: Use EmailAuthService to request password reset
         android.util.Log.d("ForgotPasswordActivity", "📧 Requesting password reset for: " + email);

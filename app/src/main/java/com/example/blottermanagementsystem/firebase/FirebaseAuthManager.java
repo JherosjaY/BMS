@@ -267,7 +267,7 @@ public class FirebaseAuthManager {
                             user.getDisplayName().contains(" ") ? 
                             user.getDisplayName().split(" ")[1] : "";
                         
-                        redirectToProfilePictureSelection(userId, firstName, lastName, true);
+                        redirectToProfilePictureSelection(user.getUid(), firstName, lastName, true);
                     }
                     
                     @Override

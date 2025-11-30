@@ -65,7 +65,7 @@ public class ProfilePictureEditManager {
         try {
             // Upload to Cloudinary
             cloudinaryManager.uploadProfilePicture(imageUri, userId, 
-                new com.example.blottermanagementsystem.utils.CloudinaryManager.UploadCallback() {
+                new com.example.blottermanagementsystem.utils.CloudinaryManager.CloudinaryUploadCallback() {
                     @Override
                     public void onUploadSuccess(String cloudinaryUrl) {
                         Log.d(TAG, "✅ Cloudinary upload successful!");
