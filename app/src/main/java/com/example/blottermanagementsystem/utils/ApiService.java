@@ -50,6 +50,48 @@ public interface ApiService {
     Call<Map<String, Object>> googleSignIn(@Body Map<String, Object> googleAuthData);
     
     /**
+     * Email Sign Up
+     * POST /api/auth/email-signup
+     */
+    @POST("api/auth/email-signup")
+    Call<Map<String, Object>> emailSignUp(@Body Map<String, Object> signupData);
+    
+    /**
+     * Email Login
+     * POST /api/auth/email-login
+     */
+    @POST("api/auth/email-login")
+    Call<Map<String, Object>> emailLogin(@Body Map<String, Object> loginData);
+    
+    /**
+     * Request Password Reset
+     * POST /api/auth/forgot-password
+     */
+    @POST("api/auth/forgot-password")
+    Call<Map<String, Object>> requestPasswordReset(@Body Map<String, Object> resetData);
+    
+    /**
+     * Reset Password with Code
+     * POST /api/auth/reset-password
+     */
+    @POST("api/auth/reset-password")
+    Call<Map<String, Object>> resetPasswordWithCode(@Body Map<String, Object> resetData);
+    
+    /**
+     * Sync Firebase User to Neon
+     * POST /api/auth/firebase-sync
+     */
+    @POST("api/auth/firebase-sync")
+    Call<Map<String, Object>> syncFirebaseUser(@Body Map<String, Object> syncData);
+    
+    /**
+     * Sync Offline Data to Neon
+     * POST /api/auth/sync-offline
+     */
+    @POST("api/auth/sync-offline")
+    Call<Map<String, Object>> syncOfflineData(@Body Map<String, Object> syncData);
+    
+    /**
      * Update Profile Picture (Save to Neon)
      * POST /api/auth/profile/picture/{userId}
      */
