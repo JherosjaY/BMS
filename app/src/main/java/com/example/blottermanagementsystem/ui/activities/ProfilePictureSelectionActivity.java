@@ -48,6 +48,7 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
     private String userIdFromIntent = "";
     private String firstNameFromIntent = "";
     private String lastNameFromIntent = "";
+    private String photoUrlFromIntent = "";
     
     // ☁️ NEW: Cloudinary integration for profile picture upload
     private com.example.blottermanagementsystem.utils.CloudinaryManager cloudinaryManager;
@@ -78,6 +79,7 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
         userIdFromIntent = intent.getStringExtra("userId");
         firstNameFromIntent = intent.getStringExtra("firstName");
         lastNameFromIntent = intent.getStringExtra("lastName");
+        photoUrlFromIntent = intent.getStringExtra("photoUrl");
         isGoogleSignIn = intent.getBooleanExtra("isGoogleSignIn", false);
         isFirstTimeUser = intent.getBooleanExtra("isFirstTimeUser", true);
         
@@ -148,17 +150,19 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
     
     private void loadGoogleProfilePicture() {
         // Check if user signed in with Google
-        if (preferencesManager.isGoogleAccount()) {
-            String photoUrl = preferencesManager.getGooglePhotoUrl();
-            String displayName = preferencesManager.getGoogleDisplayName();
-            
-            if (photoUrl != null && !photoUrl.isEmpty()) {
-                // Load Google profile picture using Glide
-                Glide.with(this)
-                    .load(photoUrl)
-                    .placeholder(R.drawable.ic_person)
-                    .error(R.drawable.ic_person)
-                    .circleCrop()
+        String photoUrl = photoUrlFromIntent;
+        if (photoUrl == null || photoUrl.isEmpty()) {
+            photoUrl = preferencesManager.getGooglePhotoUrl();
+        }
+        
+        if (photoUrl != null && !photoUrl.isEmpty()) {
+            // Load Google profile picture using Glide
+            android.util.Log.d("ProfilePictureSelection", "📸 Loading Google profile picture: " + photoUrl);
+            Glide.with(this)
+                .load(photoUrl)
+                .placeholder(R.drawable.ic_person)
+                .error(R.drawable.ic_person)
+                .circleCrop()
                     .into(ivSelectedImage);
                 
                 ivSelectedImage.setVisibility(android.view.View.VISIBLE);

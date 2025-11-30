@@ -208,6 +208,7 @@ public class LoginActivity extends BaseActivity {
                     Intent intent = new Intent(this, ProfilePictureSelectionActivity.class);
                     intent.putExtra("firstName", firstName);
                     intent.putExtra("lastName", lastName);
+                    intent.putExtra("photoUrl", photoUrl);
                     intent.putExtra("isGoogleSignIn", true);
                     intent.putExtra("isFirstTimeUser", true);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -261,6 +262,7 @@ public class LoginActivity extends BaseActivity {
                         Intent intent = new Intent(LoginActivity.this, com.example.blottermanagementsystem.ui.activities.ProfilePictureSelectionActivity.class);
                         intent.putExtra("firstName", firstName);
                         intent.putExtra("lastName", lastName);
+                        intent.putExtra("photoUrl", photoUrl);
                         intent.putExtra("isGoogleSignIn", true);
                         intent.putExtra("isFirstTimeUser", true);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
