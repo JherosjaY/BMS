@@ -15,12 +15,15 @@ import com.example.blottermanagementsystem.ui.activities.UserDashboardActivity;
 import com.example.blottermanagementsystem.ui.activities.ProfilePictureSelectionActivity;
 import com.example.blottermanagementsystem.utils.PreferencesManager;
 import com.example.blottermanagementsystem.services.BackgroundSyncService;
+import com.example.blottermanagementsystem.websocket.WebSocketManager;
+import com.example.blottermanagementsystem.websocket.RealtimeListener;
 import java.util.concurrent.Executors;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements RealtimeListener {
     
     private PreferencesManager preferencesManager;
     private BlotterDatabase database;
+    private WebSocketManager webSocketManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +33,11 @@ public class MainActivity extends BaseActivity {
         Intent syncIntent = new Intent(this, BackgroundSyncService.class);
         startService(syncIntent);
         android.util.Log.d("MainActivity", "✅ Background Sync Service started");
+        
+        // 🔌 INITIALIZE WEBSOCKET FOR REAL-TIME UPDATES
+        webSocketManager = new WebSocketManager(this);
+        webSocketManager.addListener(this);
+        android.util.Log.d("MainActivity", "🔌 WebSocket Manager initialized");
         
         // MainActivity is just a router - no layout needed
         android.util.Log.d("MainActivity", "🚀 MainActivity started - routing to appropriate screen");
@@ -216,5 +224,103 @@ public class MainActivity extends BaseActivity {
         android.util.Log.d("MainActivity", "   - onboarding_completed: false");
         android.util.Log.d("MainActivity", "   - permissions_granted: false");
         android.util.Log.d("MainActivity", "   - is_logged_in: false");
+    }
+    
+    // ============================================================================
+    // WEBSOCKET REAL-TIME UPDATES
+    // ============================================================================
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        
+        // Connect WebSocket when user is logged in
+        if (preferencesManager.isLoggedIn()) {
+            String userId = String.valueOf(preferencesManager.getUserId());
+            String userRole = preferencesManager.getUserRole();
+            
+            if (webSocketManager != null && !webSocketManager.isConnected()) {
+                android.util.Log.d("MainActivity", "🔌 Connecting WebSocket for user: " + userId);
+                webSocketManager.connect(userId, userRole);
+            }
+        }
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Keep WebSocket connected in background for real-time updates
+        // Only disconnect in onDestroy
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        
+        // Disconnect WebSocket when app is destroyed
+        if (webSocketManager != null) {
+            android.util.Log.d("MainActivity", "🔌 Disconnecting WebSocket");
+            webSocketManager.disconnect();
+        }
+    }
+    
+    /**
+     * Handle real-time updates from WebSocket
+     */
+    @Override
+    public void onRealtimeUpdate(String eventType, Object data) {
+        android.util.Log.d("MainActivity", "📨 Real-time update: " + eventType);
+        
+        switch (eventType) {
+            case "connected":
+                android.util.Log.d("MainActivity", "✅ WebSocket connected");
+                break;
+                
+            case "authenticated":
+                android.util.Log.d("MainActivity", "✅ WebSocket authenticated");
+                break;
+                
+            case "hearing_update":
+                android.util.Log.d("MainActivity", "📅 Hearing update received");
+                // Broadcast to all listening activities
+                broadcastUpdate("hearing_update", data);
+                break;
+                
+            case "case_update":
+                android.util.Log.d("MainActivity", "📋 Case update received");
+                broadcastUpdate("case_update", data);
+                break;
+                
+            case "person_update":
+                android.util.Log.d("MainActivity", "👤 Person update received");
+                broadcastUpdate("person_update", data);
+                break;
+                
+            case "notification":
+                android.util.Log.d("MainActivity", "🔔 Notification received");
+                broadcastUpdate("notification", data);
+                break;
+                
+            case "disconnected":
+                android.util.Log.d("MainActivity", "⚠️ WebSocket disconnected");
+                break;
+                
+            case "error":
+                android.util.Log.e("MainActivity", "❌ WebSocket error: " + data);
+                break;
+        }
+    }
+    
+    /**
+     * Broadcast real-time updates to other activities
+     */
+    private void broadcastUpdate(String eventType, Object data) {
+        Intent intent = new Intent("com.example.blottermanagementsystem.REALTIME_UPDATE");
+        intent.putExtra("eventType", eventType);
+        if (data instanceof String) {
+            intent.putExtra("data", (String) data);
+        }
+        sendBroadcast(intent);
+        android.util.Log.d("MainActivity", "📢 Broadcast sent: " + eventType);
     }
 }

@@ -1,14 +1,13 @@
 @echo off
-REM 🚀 BMS WebSocket Phase 1 - Push to GitHub
-REM Just double-click this file and it will push everything!
+REM 🚀 BMS WebSocket - Push to GitHub NOW
+REM Fixed: @elysiajs/ws version format
 
 color 0B
 cls
 
 echo.
 echo ========================================
-echo   🚀 BMS WebSocket Phase 1
-echo   Pushing to GitHub...
+echo   🚀 BMS WebSocket - PUSHING NOW
 echo ========================================
 echo.
 
@@ -20,7 +19,7 @@ echo.
 
 REM Step 2: Commit with message
 echo 💾 Step 2: Creating commit...
-git commit -m "Feat: Add WebSocket real-time synchronization - Phase 1 Complete"
+git commit -m "Fix: Correct @elysiajs/ws version format - Phase 1 & 2 Complete"
 echo ✅ Commit created!
 echo.
 
@@ -39,8 +38,6 @@ echo    2. Render rebuilds backend
 echo    3. WebSocket goes LIVE
 echo    4. Check: https://bms-1op6.onrender.com/ws/status
 echo.
-echo 🎯 Next Phase: Android WebSocket Client
-echo.
-echo ✨ All done! Check your GitHub repo and Render dashboard!
+echo ✨ All done! Check your Render dashboard!
 echo.
 pause
