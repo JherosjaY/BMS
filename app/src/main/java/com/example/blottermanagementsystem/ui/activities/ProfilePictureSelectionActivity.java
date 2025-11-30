@@ -112,12 +112,13 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
         setupListeners();
         
         // 🎯 NEW: Show screen tooltips if first time user
-        if (isFirstTimeUser) {
-            android.util.Log.d("ProfilePictureSelection", "✅ First time user - showing screen tooltips");
-            showScreenTooltips();
-        } else {
-            android.util.Log.d("ProfilePictureSelection", "⏭️ Returning user - skipping screen tooltips");
-        }
+        // ❌ DISABLED: Tooltip dialog removed per user request
+        // if (isFirstTimeUser) {
+        //     android.util.Log.d("ProfilePictureSelection", "✅ First time user - showing screen tooltips");
+        //     showScreenTooltips();
+        // } else {
+        //     android.util.Log.d("ProfilePictureSelection", "⏭️ Returning user - skipping screen tooltips");
+        // }
     }
     
     /**
