@@ -28,10 +28,10 @@ public class CloudinaryManager {
     private Context context;
     private PreferencesManager preferencesManager;
     
-    // Cloudinary configuration
-    private static final String CLOUDINARY_CLOUD_NAME = "your_cloud_name"; // TODO: Replace with your cloud name
-    private static final String CLOUDINARY_API_KEY = "your_api_key";       // TODO: Replace with your API key
-    private static final String CLOUDINARY_UPLOAD_PRESET = "your_preset";  // TODO: Replace with your preset
+    // Cloudinary configuration - ACTUAL CREDENTIALS
+    private static final String CLOUDINARY_CLOUD_NAME = "do9ty8tem";
+    private static final String CLOUDINARY_API_KEY = "331777292844342";
+    private static final String CLOUDINARY_UPLOAD_PRESET = "bms_upload"; // Default preset
     
     // Callback interface for upload results
     public interface CloudinaryUploadCallback {
