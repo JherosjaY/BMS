@@ -753,7 +753,6 @@ public class LoginActivity extends BaseActivity {
             user.setFirstName(firstName);
             user.setLastName(lastName);
             user.setRole("user");
-            user.setGoogleId(googleId);
             user.setCreatedAt(System.currentTimeMillis());
             
             // Save to database on background thread
