@@ -7,7 +7,7 @@
 import { Elysia, t } from "elysia";
 import { realtimeManager } from "./RealtimeManager";
 import { firebaseSync } from "../firebase/FirebaseSync";
-import { v4 as uuidv4 } from "crypto";
+import { randomUUID } from "crypto";
 
 interface WebSocketMessage {
   type: string;
@@ -21,7 +21,7 @@ export const websocketRoutes = new Elysia({ prefix: "/ws" })
   // WebSocket endpoint for real-time updates
   .ws("/realtime", {
     open(ws) {
-      const clientId = uuidv4();
+      const clientId = randomUUID();
       console.log(`🔌 WebSocket connection opened: ${clientId}`);
       
       // Send welcome message
@@ -142,7 +142,6 @@ export const websocketRoutes = new Elysia({ prefix: "/ws" })
 
 /**
  * Handle client authentication
- */
 function handleAuth(ws: any, msg: WebSocketMessage) {
   const { userId, role } = msg;
   if (!userId || !role) {
@@ -153,7 +152,7 @@ function handleAuth(ws: any, msg: WebSocketMessage) {
     return;
   }
 
-  const clientId = uuidv4();
+  const clientId = randomUUID();
   realtimeManager.registerClient(clientId, userId, role);
 
   ws.send({
@@ -179,7 +178,7 @@ function handleSubscribe(ws: any, msg: WebSocketMessage) {
     return;
   }
 
-  const clientId = uuidv4();
+  const clientId = randomUUID();
   realtimeManager.subscribe(clientId, channel);
 
   ws.send({
@@ -203,7 +202,7 @@ function handleUnsubscribe(ws: any, msg: WebSocketMessage) {
     return;
   }
 
-  const clientId = uuidv4();
+  const clientId = randomUUID();
   realtimeManager.unsubscribe(clientId, channel);
 
   ws.send({
