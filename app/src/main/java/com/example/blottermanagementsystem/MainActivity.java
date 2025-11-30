@@ -167,28 +167,15 @@ public class MainActivity extends BaseActivity implements RealtimeListener {
         });
     }
     
+    /**
+     * 🚀 PURE NEON MODE: Disabled
+     * Admin account is created in Neon backend, not locally
+     * See: BMS_STEP_1_CORE_TABLES.sql for pre-created admin account
+     */
     private void createAdminAccountIfNotExists() {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            // Check if admin account exists
-            User existingAdmin = database.userDao().getUserByUsername("admin");
-            
-            if (existingAdmin == null) {
-                // Create built-in admin account with hashed password
-                String hashedPassword = hashPassword("BMS2025");
-                User admin = new User("System", "Administrator", "admin", hashedPassword, "Admin");
-                admin.setActive(true);
-                database.userDao().insertUser(admin);
-                android.util.Log.d("MainActivity", "✅ Default admin account created: admin/BMS2025");
-            } else {
-                // Update existing admin password to hashed version if it's still plain text
-                if (existingAdmin.getPassword().equals("admin123")) {
-                    String hashedPassword = hashPassword("BMS2025");
-                    existingAdmin.setPassword(hashedPassword);
-                    database.userDao().updateUser(existingAdmin);
-                    android.util.Log.d("MainActivity", "✅ Admin password updated to hashed version");
-                }
-            }
-        });
+        android.util.Log.d("MainActivity", "⚠️ createAdminAccountIfNotExists() DISABLED - Pure Neon mode");
+        android.util.Log.d("MainActivity", "✅ Admin account is in Neon backend (bms.official.admin / BMS2025)");
+        // ✅ NO local database operations in pure Neon mode
     }
     
     /**
