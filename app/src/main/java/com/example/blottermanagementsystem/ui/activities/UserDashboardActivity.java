@@ -57,6 +57,9 @@ public class UserDashboardActivity extends BaseActivity {
     private TextView tvNotificationBadge;
     private long backPressedTime = 0;
     
+    // ❌ STUB: database variable for compatibility (returns null in pure online mode)
+    private com.example.blottermanagementsystem.data.database.BlotterDatabase database = null;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

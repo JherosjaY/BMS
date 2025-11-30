@@ -47,13 +47,11 @@ public class OfficerViewPersonHistoryActivity extends BaseActivity {
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_officer_view_person_history);
         
         try {
             database = BlotterDatabase.getDatabase(this);
             personHistoryService = new PersonHistoryService(this);
-            syncManager = new SyncManager(this);
             currentUserId = getSharedPreferences("UserSession", MODE_PRIVATE).getString("userId", "");
             
             // Get person data from intent

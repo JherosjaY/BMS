@@ -724,19 +724,7 @@ public class AdminCaseDetailActivity extends BaseActivity {
                     database.blotterReportDao().updateReport(currentReport);
                     android.util.Log.d("AdminAssign", "✅ Report updated in database");
                     
-                    // Add to sync queue for cloud synchronization
-                    try {
-                        com.example.blottermanagementsystem.data.entity.SyncQueue syncItem = new com.example.blottermanagementsystem.data.entity.SyncQueue(
-                            "BlotterReport",
-                            currentReport.getId(),
-                            "UPDATE",
-                            "Officer assignment: " + officerNames.toString()
-                        );
-                        database.syncQueueDao().insertSyncItem(syncItem);
-                        android.util.Log.d("AdminAssign", "✅ Added to sync queue for cloud sync");
-                    } catch (Exception e) {
-                        android.util.Log.e("AdminAssign", "⚠️ Failed to add to sync queue: " + e.getMessage());
-                    }
+                    // ❌ REMOVED: Sync queue logic (Pure online mode)
                     
                     // Verify the update by reading back from database
                     BlotterReport verifyReport = database.blotterReportDao().getReportById(currentReport.getId());

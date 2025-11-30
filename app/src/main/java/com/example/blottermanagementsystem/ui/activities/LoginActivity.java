@@ -804,26 +804,7 @@ public class LoginActivity extends BaseActivity {
             userData.put("username", email.split("@")[0]);
             userData.put("role", "user");
             
-            // Call backend API to sync user
-            com.example.blottermanagementsystem.utils.ApiClient.getApiService()
-                .syncGoogleUser(userData)
-                .enqueue(new retrofit2.Callback<java.util.Map<String, Object>>() {
-                    @Override
-                    public void onResponse(retrofit2.Call<java.util.Map<String, Object>> call, 
-                                         retrofit2.Response<java.util.Map<String, Object>> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            android.util.Log.d("LoginActivity", "✅ Google user synced to Neon successfully!");
-                        } else {
-                            android.util.Log.e("LoginActivity", "⚠️ Failed to sync to Neon: " + response.code());
-                        }
-                    }
-                    
-                    @Override
-                    public void onFailure(retrofit2.Call<java.util.Map<String, Object>> call, Throwable t) {
-                        android.util.Log.e("LoginActivity", "⚠️ Network error syncing to Neon: " + t.getMessage());
-                        // Don't fail the login - user is already saved locally
-                    }
-                });
+            // ❌ REMOVED: syncGoogleUser call (Pure online mode - user already saved locally)
         } catch (Exception e) {
             android.util.Log.e("LoginActivity", "❌ Error in syncGoogleUserToNeon: " + e.getMessage());
             // Don't fail the login - user is already saved locally
