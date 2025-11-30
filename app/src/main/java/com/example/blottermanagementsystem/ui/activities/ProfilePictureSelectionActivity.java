@@ -108,18 +108,19 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
         
         setupListeners();
         
-        // 🎯 NEW: Show tooltips if first time user
+        // 🎯 NEW: Show screen tooltips if first time user
         if (isFirstTimeUser) {
-            android.util.Log.d("ProfilePictureSelection", "✅ First time user - showing tooltips");
+            android.util.Log.d("ProfilePictureSelection", "✅ First time user - showing screen tooltips");
             showScreenTooltips();
         } else {
-            android.util.Log.d("ProfilePictureSelection", "⏭️ Returning user - skipping tooltips");
+            android.util.Log.d("ProfilePictureSelection", "⏭️ Returning user - skipping screen tooltips");
         }
     }
     
     /**
      * 🎯 SHOW SCREEN TOOLTIPS (First Time Only)
-     * Display helpful tooltips for new users
+     * Display helpful tooltips for new users on this screen
+     * NOTE: Onboarding & Permissions are shown on app first launch (not here)
      */
     private void showScreenTooltips() {
         try {
@@ -131,13 +132,13 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
                            "3️⃣ Click Continue to proceed\n\n" +
                            "💡 You can change your profile picture anytime!")
                 .setPositiveButton("Got it!", (dialog, which) -> {
-                    android.util.Log.d("ProfilePictureSelection", "✅ User acknowledged tooltips");
+                    android.util.Log.d("ProfilePictureSelection", "✅ User acknowledged screen tooltips");
                     dialog.dismiss();
                 })
                 .setCancelable(false)
                 .show();
         } catch (Exception e) {
-            android.util.Log.e("ProfilePictureSelection", "❌ Error showing tooltips: " + e.getMessage());
+            android.util.Log.e("ProfilePictureSelection", "❌ Error showing screen tooltips: " + e.getMessage());
         }
     }
     
@@ -560,13 +561,10 @@ public class ProfilePictureSelectionActivity extends BaseActivity {
                 break;
         }
         
-        // 🎯 NEW: Pass isFirstTimeUser flag to dashboard
-        intent.putExtra("isFirstTimeUser", isFirstTimeUser);
-        
-        // 🎯 NEW: Set isFirstTimeUser to false after first time
+        // 🎯 Set isFirstTimeUser to false after first time (screen tooltips shown)
         if (isFirstTimeUser) {
             preferencesManager.setFirstTimeUser(false);
-            android.util.Log.d("ProfilePictureSelection", "✅ Set isFirstTimeUser = false");
+            android.util.Log.d("ProfilePictureSelection", "✅ Set isFirstTimeUser = false (screen tooltips completed)");
         }
         
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
