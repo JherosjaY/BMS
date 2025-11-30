@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_name VARCHAR(100),
     display_name VARCHAR(255),
     photo_url TEXT,
+    profile_picture_url TEXT,
     role VARCHAR(50) DEFAULT 'User', -- Admin, Officer, User
     auth_provider VARCHAR(50), -- google, email, etc.
     phone_number VARCHAR(20),
