@@ -44,17 +44,21 @@ export default new Elysia({ prefix: '/api/auth' })
         .values({
           email: body.email,
           username: body.username,
-          passwordHash: hashedPassword,
-          firstName: body.firstName || 'User',
-          lastName: body.lastName || 'Account',
-          role: 'User',
+          password: hashedPassword,
+          firstName: 'User',
+          lastName: 'Account',
+          role: 'user',
         })
         .returning();
 
       return {
         success: true,
         message: 'User registered successfully',
-        data: newUser[0],
+        data: {
+          id: newUser[0].id,
+          email: newUser[0].email,
+          username: newUser[0].username,
+        },
       };
     },
     {
@@ -62,8 +66,6 @@ export default new Elysia({ prefix: '/api/auth' })
         username: t.String(),
         email: t.String({ format: 'email' }),
         password: t.String({ minLength: 6 }),
-        firstName: t.Optional(t.String()),
-        lastName: t.Optional(t.String()),
       }),
     }
   )
