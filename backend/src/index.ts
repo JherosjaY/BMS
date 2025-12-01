@@ -13,8 +13,9 @@ import emailRoutes from './routes/email';
 import notificationRoutes from './routes/notifications';
 import dashboardRoutes from './routes/dashboard';
 
-const PORT = parseInt(process.env.PORT || '3000');
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 const app = new Elysia()
   // Middleware
@@ -28,11 +29,11 @@ const app = new Elysia()
       },
       servers: [
         {
-          url: 'http://localhost:3000',
+          url: `http://localhost:${PORT}`,
           description: 'Development',
         },
         {
-          url: 'https://bms-backend.onrender.com',
+          url: 'https://bms-1op6.onrender.com',
           description: 'Production',
         },
       ],
@@ -48,6 +49,7 @@ const app = new Elysia()
     message: 'BMS Backend API',
     version: '2.0.0',
     status: 'running',
+    environment: NODE_ENV,
     timestamp: new Date().toISOString(),
   }))
 
@@ -71,8 +73,9 @@ const app = new Elysia()
   })
 
   .listen(PORT, () => {
-    console.log(`🚀 BMS Backend running on http://localhost:${PORT}`);
+    console.log(`🚀 BMS Backend running on port ${PORT}`);
     console.log(`📚 Swagger docs: http://localhost:${PORT}/swagger`);
+    console.log(`🌍 Environment: ${NODE_ENV}`);
   });
 
 export default app;
