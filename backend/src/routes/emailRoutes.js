@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import emailController from '../controllers/emailController.js';
+import auth from '../middleware/auth.js';
+
 const router = express.Router();
-const emailController = require('../controllers/emailController');
-const auth = require('../middleware/auth');
 
 // Password reset endpoints
 router.post('/password-reset', emailController.sendPasswordResetCode);
@@ -17,4 +18,4 @@ router.post('/welcome', emailController.sendWelcomeEmail);
 // Case assignment notification
 router.post('/case-assigned', auth, emailController.sendCaseAssignmentEmail);
 
-module.exports = router;
+export default router;

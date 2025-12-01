@@ -1,13 +1,14 @@
-const nodemailer = require('nodemailer');
-const crypto = require('crypto');
-const db = require('../database/db');
+import nodemailer from 'nodemailer';
+import crypto from 'crypto';
+import db from '../database/db.js';
+import bcryptjs from 'bcryptjs';
 
 // Email transporter configuration
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'official.bms.2025@gmail.com',
-        pass: 'bvg vyes knki yvgi'
+        user: process.env.GMAIL_USER || 'official.bms.2025@gmail.com',
+        pass: process.env.GMAIL_PASSWORD || 'bvg vyes knki yvgi'
     }
 });
 
@@ -17,7 +18,7 @@ const generateResetCode = () => {
 };
 
 // Send password reset code
-exports.sendPasswordResetCode = async (req, res) => {
+const sendPasswordResetCode = async (req, res) => {
     try {
         const { email } = req.body;
 
@@ -70,7 +71,7 @@ exports.sendPasswordResetCode = async (req, res) => {
 };
 
 // Verify reset code
-exports.verifyResetCode = async (req, res) => {
+const verifyResetCode = async (req, res) => {
     try {
         const { email, resetCode } = req.body;
 
@@ -92,10 +93,9 @@ exports.verifyResetCode = async (req, res) => {
 };
 
 // Reset password with verified code
-exports.resetPassword = async (req, res) => {
+const resetPassword = async (req, res) => {
     try {
         const { email, resetCode, newPassword } = req.body;
-        const bcrypt = require('bcryptjs');
 
         // Verify code
         const codeResult = await db.query(
@@ -108,7 +108,7 @@ exports.resetPassword = async (req, res) => {
         }
 
         // Hash new password
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const hashedPassword = await bcryptjs.hash(newPassword, 10);
 
         // Update user password
         await db.query('UPDATE users SET password = $1, updated_at = NOW() WHERE email = $2', [hashedPassword, email]);
@@ -142,7 +142,7 @@ exports.resetPassword = async (req, res) => {
 };
 
 // Send officer credentials
-exports.sendOfficerCredentials = async (req, res) => {
+const sendOfficerCredentials = async (req, res) => {
     try {
         const { officerId, officerEmail, username, tempPassword } = req.body;
 
@@ -187,7 +187,7 @@ exports.sendOfficerCredentials = async (req, res) => {
 };
 
 // Send welcome email
-exports.sendWelcomeEmail = async (req, res) => {
+const sendWelcomeEmail = async (req, res) => {
     try {
         const { userId, email } = req.body;
 
@@ -227,7 +227,7 @@ exports.sendWelcomeEmail = async (req, res) => {
 };
 
 // Send case assignment notification
-exports.sendCaseAssignmentEmail = async (req, res) => {
+const sendCaseAssignmentEmail = async (req, res) => {
     try {
         const { officerId, caseId, caseTitle } = req.body;
 
@@ -268,4 +268,13 @@ exports.sendCaseAssignmentEmail = async (req, res) => {
         console.error('Error sending case assignment email:', error);
         res.status(500).json({ success: false, message: 'Error sending email', error: error.message });
     }
+};
+
+export default {
+    sendPasswordResetCode,
+    verifyResetCode,
+    resetPassword,
+    sendOfficerCredentials,
+    sendWelcomeEmail,
+    sendCaseAssignmentEmail
 };
