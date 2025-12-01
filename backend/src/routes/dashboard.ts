@@ -4,7 +4,6 @@ import { blotterReports, users, notifications } from '../db/schema';
 import { count, eq } from 'drizzle-orm';
 
 export default new Elysia({ prefix: '/api/dashboard' })
-  // Dashboard stats
   .get('/', async () => {
     const totalCases = await db
       .select({ count: count() })
@@ -35,19 +34,15 @@ export default new Elysia({ prefix: '/api/dashboard' })
     };
   })
 
-  // Officer workload
   .get('/officer-workload', async () => {
     const workload = await db.query.blotterReports.findMany({
-      with: {
-        assignedOfficer: true,
-      },
+      with: { assignedOfficer: true },
     });
 
     const grouped = workload.reduce(
       (acc, report) => {
         const officerId = report.assignedOfficerId;
         if (!officerId) return acc;
-        
         if (!acc[officerId]) {
           acc[officerId] = {
             officer: report.assignedOfficer,
@@ -55,27 +50,18 @@ export default new Elysia({ prefix: '/api/dashboard' })
             pendingCount: 0,
           };
         }
-        
         acc[officerId].caseCount++;
-        if (report.status === 'pending') {
-          acc[officerId].pendingCount++;
-        }
-        
+        if (report.status === 'pending') acc[officerId].pendingCount++;
         return acc;
       },
       {} as Record<string, any>
     );
 
-    return {
-      success: true,
-      data: Object.values(grouped),
-    };
+    return { success: true, data: Object.values(grouped) };
   })
 
-  // Case status distribution
   .get('/case-status', async () => {
     const allCases = await db.query.blotterReports.findMany();
-    
     const distribution = allCases.reduce(
       (acc, report) => {
         const status = report.status || 'unknown';
@@ -84,17 +70,11 @@ export default new Elysia({ prefix: '/api/dashboard' })
       },
       {} as Record<string, number>
     );
-
-    return {
-      success: true,
-      data: distribution,
-    };
+    return { success: true, data: distribution };
   })
 
-  // Blotter analytics
   .get('/blotter-analytics', async () => {
     const reports = await db.query.blotterReports.findMany();
-    
     const byPriority = reports.reduce(
       (acc, report) => {
         const priority = report.priority || 'medium';
@@ -103,40 +83,9 @@ export default new Elysia({ prefix: '/api/dashboard' })
       },
       {} as Record<string, number>
     );
-
-    return {
-      success: true,
-      data: {
-        totalReports: reports.length,
-        byPriority,
-      },
-    };
+    return { success: true, data: { totalReports: reports.length, byPriority } };
   })
 
-  // Evidence summary
-  .get('/evidence-summary', async () => {
-    const casesWithEvidence = await db.query.blotterReports.findMany({
-      with: {
-        evidence: true,
-      },
-    });
-
-    const totalEvidence = casesWithEvidence.reduce(
-      (sum, report) => sum + (report.evidence?.length || 0),
-      0
-    );
-
-    return {
-      success: true,
-      data: {
-        totalEvidence,
-        casesWithEvidence: casesWithEvidence.filter((c) => c.evidence.length > 0)
-          .length,
-      },
-    };
-  })
-
-  // Recent activity
   .get('/recent-activity', async () => {
     const recentCases = await db.query.blotterReports.findMany({
       limit: 10,
@@ -150,38 +99,6 @@ export default new Elysia({ prefix: '/api/dashboard' })
 
     return {
       success: true,
-      data: {
-        recentCases,
-        recentNotifications,
-      },
-    };
-  })
-
-  // Case resolution time
-  .get('/case-resolution-time', async () => {
-    const resolvedCases = await db.query.blotterReports.findMany({
-      where: eq(blotterReports.status, 'resolved'),
-    });
-
-    const avgResolutionTime =
-      resolvedCases.length > 0
-        ? resolvedCases.reduce((sum, report) => {
-            if (report.createdAt && report.updatedAt) {
-              const diff =
-                new Date(report.updatedAt).getTime() -
-                new Date(report.createdAt).getTime();
-              return sum + diff;
-            }
-            return sum;
-          }, 0) / resolvedCases.length
-        : 0;
-
-    return {
-      success: true,
-      data: {
-        resolvedCases: resolvedCases.length,
-        avgResolutionTimeMs: Math.round(avgResolutionTime),
-        avgResolutionTimeDays: Math.round(avgResolutionTime / (1000 * 60 * 60 * 24)),
-      },
+      data: { recentCases, recentNotifications },
     };
   });

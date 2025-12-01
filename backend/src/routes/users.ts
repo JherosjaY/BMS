@@ -19,10 +19,7 @@ export default new Elysia({ prefix: '/api/users' })
     '/:id',
     async ({ params }) => {
       const user = await db.query.users.findFirst({
-        where: eq(users.id, params.id),
-        with: {
-          images: true,
-        },
+        where: eq(users.id, parseInt(params.id)),
       });
 
       if (!user) {
@@ -47,11 +44,8 @@ export default new Elysia({ prefix: '/api/users' })
     async ({ params, body }) => {
       const updated = await db
         .update(users)
-        .set({
-          ...body,
-          updatedAt: new Date(),
-        })
-        .where(eq(users.id, params.id))
+        .set(body)
+        .where(eq(users.id, parseInt(params.id)))
         .returning();
 
       if (!updated.length) {
@@ -60,7 +54,7 @@ export default new Elysia({ prefix: '/api/users' })
 
       return {
         success: true,
-        message: 'User updated successfully',
+        message: 'User updated',
         data: updated[0],
       };
     },
@@ -72,6 +66,7 @@ export default new Elysia({ prefix: '/api/users' })
         firstName: t.Optional(t.String()),
         lastName: t.Optional(t.String()),
         profilePictureUrl: t.Optional(t.String()),
+        role: t.Optional(t.String()),
       }),
     }
   )
@@ -82,7 +77,7 @@ export default new Elysia({ prefix: '/api/users' })
     async ({ params }) => {
       const deleted = await db
         .delete(users)
-        .where(eq(users.id, params.id))
+        .where(eq(users.id, parseInt(params.id)))
         .returning();
 
       if (!deleted.length) {
@@ -91,7 +86,7 @@ export default new Elysia({ prefix: '/api/users' })
 
       return {
         success: true,
-        message: 'User deleted successfully',
+        message: 'User deleted',
       };
     },
     {
