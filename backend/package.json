@@ -5,10 +5,10 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
-    "migrate": "node src/database/migrate.js",
-    "seed": "node src/database/seed.js"
+    "start": "bun src/index.js",
+    "dev": "bun --watch src/index.js",
+    "migrate": "bun src/database/migrate.js",
+    "seed": "bun src/database/seed.js"
   },
   "keywords": ["blotter", "management", "system", "api"],
   "author": "",
