@@ -13,7 +13,7 @@ import emailRoutes from './routes/email';
 import notificationRoutes from './routes/notifications';
 import dashboardRoutes from './routes/dashboard';
 
-const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+const PORT = 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
