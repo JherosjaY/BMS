@@ -386,4 +386,48 @@ public interface ApiService {
      */
     @PUT("api/hearings/{hearingId}/status")
     Call<Map<String, Object>> updateHearingStatus(@Path("hearingId") String hearingId, @Body Map<String, Object> statusData);
+    
+    // ============ EMAIL SYSTEM ============
+    
+    /**
+     * Send Password Reset Code
+     * POST /api/email/password-reset
+     */
+    @POST("api/email/password-reset")
+    Call<Map<String, Object>> sendPasswordResetCode(@Body Map<String, Object> emailData);
+    
+    /**
+     * Verify Reset Code
+     * POST /api/email/verify-reset-code
+     */
+    @POST("api/email/verify-reset-code")
+    Call<Map<String, Object>> verifyResetCode(@Body Map<String, Object> codeData);
+    
+    /**
+     * Reset Password with Verified Code
+     * POST /api/email/reset-password
+     */
+    @POST("api/email/reset-password")
+    Call<Map<String, Object>> resetPassword(@Body Map<String, Object> resetData);
+    
+    /**
+     * Send Officer Credentials Email
+     * POST /api/email/send-officer-credentials
+     */
+    @POST("api/email/send-officer-credentials")
+    Call<Map<String, Object>> sendOfficerCredentials(@Body Map<String, Object> credentialsData);
+    
+    /**
+     * Send Welcome Email
+     * POST /api/email/welcome
+     */
+    @POST("api/email/welcome")
+    Call<Map<String, Object>> sendWelcomeEmail(@Body Map<String, Object> welcomeData);
+    
+    /**
+     * Send Case Assignment Email
+     * POST /api/email/case-assigned
+     */
+    @POST("api/email/case-assigned")
+    Call<Map<String, Object>> sendCaseAssignmentEmail(@Body Map<String, Object> assignmentData);
 }
