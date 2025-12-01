@@ -1,0 +1,33 @@
+{
+  "name": "bms-backend-elysia",
+  "version": "2.0.0",
+  "description": "Blotter Management System Backend - Elysia + TypeScript",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "build": "tsc",
+    "migrate": "bun src/db/migrate.ts",
+    "seed": "bun src/db/seed.ts"
+  },
+  "keywords": ["blotter", "management", "system", "api", "elysia"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "elysia": "^1.0.0",
+    "@elysiajs/cors": "^1.0.0",
+    "@elysiajs/swagger": "^1.0.0",
+    "@elysiajs/jwt": "^1.0.0",
+    "drizzle-orm": "^0.29.0",
+    "postgres": "^3.4.0",
+    "dotenv": "^16.3.1",
+    "nodemailer": "^6.9.7",
+    "bcryptjs": "^2.4.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "bun-types": "latest",
+    "drizzle-kit": "^0.20.0"
+  }
+}
