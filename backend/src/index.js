@@ -14,6 +14,7 @@ import officerRoutes from './routes/officerRoutes.js';
 import evidenceRoutes from './routes/evidenceRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js';
+import emailRoutes from './routes/emailRoutes.js';
 
 dotenv.config();
 
@@ -63,6 +64,7 @@ app.use('/api/officers', officerRoutes);
 app.use('/api/evidence', evidenceRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/email', emailRoutes);
 
 // 404 handler
 app.use((req, res) => {

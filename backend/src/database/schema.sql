@@ -163,3 +163,30 @@ SELECT
     COUNT(CASE WHEN priority = 'low' THEN 1 END) as low_priority
 FROM cases
 GROUP BY status;
+
+-- Password Resets Table
+CREATE TABLE IF NOT EXISTS password_resets (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    reset_code VARCHAR(6) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    used BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Email Logs Table
+CREATE TABLE IF NOT EXISTS email_logs (
+    id SERIAL PRIMARY KEY,
+    recipient VARCHAR(255) NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    type VARCHAR(50),
+    status VARCHAR(50) DEFAULT 'sent',
+    error_message TEXT,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for email tables
+CREATE INDEX idx_password_resets_email ON password_resets(email);
+CREATE INDEX idx_password_resets_code ON password_resets(reset_code);
+CREATE INDEX idx_email_logs_recipient ON email_logs(recipient);
+CREATE INDEX idx_email_logs_type ON email_logs(type);
